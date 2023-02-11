@@ -1,4 +1,7 @@
 FROM jupyter/base-notebook:python-3.10.4
+
+USER root
+
 # Create a working directory
 WORKDIR /workspace/
 # VOLUME [/usr/src/app/
@@ -6,12 +9,17 @@ WORKDIR /workspace/
 # WORKDIR /usr/src/app
 
 # Build with some basic utilities
-# RUN apt-get update && apt-get install -y \
-#     python3-pip \
-#     git 
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    git 
 
 # alias python='python3'
 # RUN ln -s /usr/bin/python3 /usr/bin/python
+# RUN sudo apt-get -y install cdo
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install cdo
+RUN sudo apt-get -y install libgeos-dev
+
+RUN pip install cartopy
 
 COPY ./requirements.txt /workspace/requirements.txt
 RUN pip install -r /workspace/requirements.txt
