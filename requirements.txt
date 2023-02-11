@@ -2,3 +2,4 @@ xarray
 numpy
 netcdf4
 scipy
+nctoolkit
