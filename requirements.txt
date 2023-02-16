@@ -3,3 +3,4 @@ numpy
 netcdf4
 scipy
 nctoolkit
+hydra-core
