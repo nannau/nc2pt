@@ -1,0 +1,39 @@
+hr:
+  chunksize:
+    time: 100
+  path: /home/nannau/scratch/climatex/data/wrf/*.nc
+  rename_dims:
+    time: time
+  rename_vars:
+    U10: U10
+    V10: V10
+    lon: longitude
+    lat: latitude
+  is_west_negative: true
+  output_path: /home/nannau/scratch/climatex/data/wrf_full.nc
+lr:
+  chunksize:
+    time: 100
+  path: /home/nannau/scratch/climatex/data/era5/*.nc
+  rename_dims:
+    longitude: longitude
+    latitude: latitude
+    time: time
+  rename_vars:
+    uas: U10
+    vas: V10
+  is_west_negative: false
+  output_path: /home/nannau/scratch/climatex/data/era5_full.nc
+spatial:
+  scale_factor: 8
+  x:
+    first_index: 0
+    last_index: 632
+  'y':
+    first_index: 2
+    last_index: 634
+time:
+  full:
+    start: 20001001T01:00:00
+    end: 20150929T23:00:00
+engine: netcdf4

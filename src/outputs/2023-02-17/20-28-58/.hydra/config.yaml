@@ -1,0 +1,17 @@
+hr:
+  path: /home/nannau/scratch/climatex/data/wrf/
+  rename:
+    U10: U10
+    V10: V10
+    lon: longitude
+    lat: latitude
+    time: time
+lr:
+  path: /home/nannau/scratch/climatex/data/era5/
+  rename:
+    uas: U10
+    vas: V10
+    longitude: longitude
+    latitude: latitude
+    time: time
+engine: netcdf4

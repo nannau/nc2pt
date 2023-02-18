@@ -2,3 +2,6 @@ xarray
 numpy
 netcdf4
 scipy
+dask
+zarr
+hydra-core
