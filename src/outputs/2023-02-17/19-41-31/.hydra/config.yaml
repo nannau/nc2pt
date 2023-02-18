@@ -1,5 +1,0 @@
-wrf:
-  dim_names:
-    longitude: lon
-    latitude: lat
-    time: time
