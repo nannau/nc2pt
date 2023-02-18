@@ -1,0 +1,7 @@
+paths:
+    hr: "/workspace/data/wrf/"
+    lr: "/workspace/data/era5/"
+vars:
+    hr: ["U10"]
+    lr: ["uas"]
+

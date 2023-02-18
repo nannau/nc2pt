@@ -9,9 +9,6 @@ services:
   main:
     volumes:
     - ./:/workspace
-    environment:
-      - JUPYTER_PASSWORD=${JUPYTER_PASSWORD}
-      # - JUPYTER_CONFIG_DIR=/workspace/.jupyter
     image: climatex-prep:v1.0
     build:
       context: .

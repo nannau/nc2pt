@@ -2,6 +2,10 @@ xarray
 numpy
 netcdf4
 scipy
+<<<<<<< HEAD
 dask
 zarr
+=======
+nctoolkit
+>>>>>>> 2b954b3b1883d78b86747aaaaaef731dffec2f84
 hydra-core
