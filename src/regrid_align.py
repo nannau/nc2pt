@@ -1,7 +1,7 @@
 import xarray as xr
 from tqdm import tqdm
-
 import glob
+
 import logging
 import os
 from timeit import default_timer as timer
@@ -47,10 +47,12 @@ def load_grid(path: str, engine: str) -> xr.Dataset:
         Grid to regrid to.
     """
 
+    chunky = {"time": 50}
+
     if len(path) > 1:
-        grid = xr.open_mfdataset(path, engine=engine, parallel=True, chunks = {"time": 10})
+        grid = xr.open_mfdataset(path, engine=engine, data_vars="minimal", chunks=chunky)
     else:
-        grid = xr.open_dataset(path[0], engine=engine, parallel=True, chunks = {"time": 10})
+        grid = xr.open_dataset(path[0], engine=engine, chunk=chunky)
 
     return grid
 
@@ -158,12 +160,12 @@ def write_to_zarr(ds: xr.Dataset, path: str) -> None:
 
     # ds.chunk(chunksize)
     logging.info("Creating Zarr store...")
-    ds.copy(deep=True).to_zarr(path, mode="w", compute=False)
+    # ds.chunk({"time": 1}).isel(time=slice(0)).to_zarr(path, mode='a', region={'time': slice(0)})
     logging.info("Interating through Zarr store...")
-    for t in tqdm(range(len(ds.time))):
+    # for t in tqdm(range(1, len(ds.time))):
         # ds = ds.drop_vars(['longitude', 'latitude'])
-        ds.chunk({"time": 1}).isel(time=slice(t)).to_zarr(path, mode='a', region={'time': slice(t)})
-    # ds.chunk(chunksize).to_netcdf(path, mode="w")
+        # ds.chunk({"time": 1}).isel(time=slice(t)).to_zarr(path, mode='a', region={'time': slice(t)})
+    ds.chunk({"time": 500}).to_zarr(path, mode="w")
 
 @hydra.main(version_base=None, config_path="conf", config_name="config")
 def main(cfg) -> None:
@@ -193,12 +195,15 @@ def main(cfg) -> None:
 
     # Regrid and align the dataset.
     logging.info("Regridding and interpolating...")
-    lr = regrid_align(lr, hr).compute()
+    lr = regrid_align(lr, hr)
 
     # Crop the field to the given size.
     logging.info("Cropping field...")
     lr = crop_field(lr, cfg.spatial.scale_factor, cfg.spatial.x, cfg.spatial.y)
     hr = crop_field(hr, cfg.spatial.scale_factor, cfg.spatial.x, cfg.spatial.y)
+
+    lr = lr.drop(["latitude", "longitude"])
+    hr = hr.drop(["latitude", "longitude"])
 
     # Coarsen the low resolution dataset.
     logging.info("Coarsening low resolution dataset...")
@@ -207,7 +212,7 @@ def main(cfg) -> None:
     # Write the output to disk.
     logging.info("Writing output...")
     write_to_zarr(lr, cfg.lr.output_path)
-    # write_to_zarr(hr, cfg.hr.output_path)
+    write_to_zarr(hr, cfg.hr.output_path)
 
     end = timer()
     logging.info("Done!")
@@ -215,5 +220,9 @@ def main(cfg) -> None:
 
 if __name__ == '__main__':
     logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
-    with dask.config.set(**{'array.slicing.split_large_chunks': False}):
-        main()
+    # with dask.config.set(**{'array.slicing.split_large_chunks': False}):
+    # client = Client()
+    cores = int(multiprocessing.cpu_count()/2)
+    print(f"Using {cores} cores")
+    client = Client(n_workers = cores, threads_per_worker = 2, memory_limit='24GB')
+    main()
