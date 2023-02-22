@@ -3,21 +3,21 @@ hr:
     time: 1
     # rlat: -1
     # rlon: -1
-  path: /home/nannau/scratch/climatex/data/wrf/*.nc
+  path: /home/nannau/jabbar/data/wrf/*.nc
   rename_dims: {"time": "time"}
   rename_vars: {"U10": "U10", "V10": "V10", "lon": "longitude", "lat": "latitude"}
   is_west_negative: true
-  output_path: /home/nannau/scratch/climatex/data/wrf_full.zarr
+  output_path: /home/nannau/gom/wrf_full_old.zarr
 lr:
   chunksize:
     time: 1
     # rlat: -1
     # rlon: -1
-  path: /home/nannau/scratch/climatex/data/era5/*.nc
+  path: /home/nannau/jabbar/data/era5/*.nc
   rename_dims: {"longitude": "longitude", "latitude": "latitude", "time": "time"}
   rename_vars: {"uas": "U10", "vas": "V10"}
   is_west_negative: false
-  output_path: /home/nannau/scratch/climatex/data/era5_full.zarr
+  output_path: /home/nannau/gom/era5_full_old.zarr
 
 spatial:
   scale_factor: 8
@@ -31,6 +31,7 @@ spatial:
 time:
   full: 
     start: "20001001T01:00:00"
-    end: "20150929T23:00:00"
+    end: "20001101T23:00:00"
+    # end: "20150929T23:00:00"
 
-engine: netcdf4
+engine: h5netcdf

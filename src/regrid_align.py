@@ -1,4 +1,6 @@
 import xarray as xr
+import xesmf as xe
+
 from tqdm import tqdm
 import glob
 
@@ -29,7 +31,9 @@ def regrid_align(ds: xr.Dataset, grid: xr.Dataset) -> xr.Dataset:
     """
 
     # Regrid to the given grid.
+    # regridder = xe.Regridder(ds, grid, "bilinear")
     ds = ds.interp(coords = {'longitude': grid.longitude, 'latitude': grid.latitude})
+    # ds = regridder(ds)
 
     return ds
 
@@ -91,7 +95,6 @@ def match_longitudes(ds: xr.Dataset) -> xr.Dataset:
     ds : xarray.Dataset
         Dataset with longitudes in the range [-180, 180].
     """
-
     ds = ds.assign_coords(longitude=(ds.longitude  + 360))
 
     return ds
@@ -160,12 +163,8 @@ def write_to_zarr(ds: xr.Dataset, path: str) -> None:
 
     # ds.chunk(chunksize)
     logging.info("Creating Zarr store...")
-    # ds.chunk({"time": 1}).isel(time=slice(0)).to_zarr(path, mode='a', region={'time': slice(0)})
     logging.info("Interating through Zarr store...")
-    # for t in tqdm(range(1, len(ds.time))):
-        # ds = ds.drop_vars(['longitude', 'latitude'])
-        # ds.chunk({"time": 1}).isel(time=slice(t)).to_zarr(path, mode='a', region={'time': slice(t)})
-    ds.chunk({"time": 500}).to_zarr(path, mode="w")
+    ds.chunk({"time": 200}).to_zarr(path, mode="w")
 
 @hydra.main(version_base=None, config_path="conf", config_name="config")
 def main(cfg) -> None:
@@ -202,6 +201,8 @@ def main(cfg) -> None:
     lr = crop_field(lr, cfg.spatial.scale_factor, cfg.spatial.x, cfg.spatial.y)
     hr = crop_field(hr, cfg.spatial.scale_factor, cfg.spatial.x, cfg.spatial.y)
 
+    # lr = lr.drop(["lat", "lon"])
+    # hr = hr.drop(["lat", "lon"])
     lr = lr.drop(["latitude", "longitude"])
     hr = hr.drop(["latitude", "longitude"])
 
