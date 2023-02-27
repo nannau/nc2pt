@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-   name='climatex_prep',
+   name='ClimateXPrep',
    version='0.1.0',
    author='Nic Annau',
    author_email='nicannau@gmail.com ',
@@ -13,6 +13,6 @@ setup(
          "numpy",
          "matplotlib",
          "scipy",
-         "xarray"
+         "xarray",
          ],
 )
