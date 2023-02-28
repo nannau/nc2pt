@@ -39,7 +39,7 @@ jobs:
       - name: Generate coverage reports
         run: |
           conda install pytest-cov
-          pytest --cov ClimateXPrep/tests/ --cov-report=xml
+          pytest --cov-config=.coveragerc --cov=ClimateXPrep --cov-report=xml ClimateXPrep/tests/
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:

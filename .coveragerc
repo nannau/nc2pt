@@ -1,0 +1,5 @@
+[run]
+omit =
+    ClimateXPrep/preprocess.py
+    ClimateXPrep/__init__.py
+    ClimateXPrep/tests/__init__.py
