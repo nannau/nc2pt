@@ -23,6 +23,7 @@ jobs:
           conda env update --file environment.yml --name base
           conda install pip
           pip install -e .
+          pip install -r requirements.txt
       - name: Lint with flake8
         run: |
           conda install flake8

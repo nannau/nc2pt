@@ -4,4 +4,5 @@ dependencies:
   - conda-forge::xesmf
   - conda-forge::dask
   - conda-forge::netCDF4
+  - hydra-core
   - pip
