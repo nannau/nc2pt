@@ -5,7 +5,7 @@ setup(
    version='0.1.0',
    author='Nic Annau',
    author_email='nicannau@gmail.com ',
-   packages=['src'],
+   packages=['ClimateXPrep'],
    license='LICENSE',
    description='Python module to to pre-process ClimatEx deep learning data.',
    long_description=open('README.md').read(),
