@@ -1,4 +1,4 @@
-# ClimateXPrep
+# ClimatExPrep
 ![example workflow](https://github.com/nannau/ClimatExPrep/actions/workflows/python-package-conda.yml/badge.svg?event=push)
 [![codecov](https://codecov.io/gh/nannau/ClimatExPrep/branch/main/graph/badge.svg?token=XXRLD3076V)](https://codecov.io/gh/nannau/ClimatExPrep)
 
