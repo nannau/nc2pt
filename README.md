@@ -4,7 +4,12 @@
 
 A repository of software for preprocessing climatex data for the deep learning pipeline.
 
+### Requirements
+* [Miniconda](https://docs.conda.io/en/latest/miniconda.html) with Python >= 3.7
 
+
+### Installation
+Many earth-system projects are only available through Conda
 
 
 ---
