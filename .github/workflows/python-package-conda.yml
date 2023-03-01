@@ -35,11 +35,11 @@ jobs:
       - name: Test with pytest
         run: |
           conda install pytest
-          pytest ClimateXPrep/tests/
+          pytest ClimatExPrep/tests/
       - name: Generate coverage reports
         run: |
           conda install pytest-cov
-          pytest --cov-config=.coveragerc --cov=ClimateXPrep --cov-report=xml ClimateXPrep/tests/
+          pytest --cov-config=.coveragerc --cov=ClimatExPrep --cov-report=xml ClimatExPrep/tests/
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
