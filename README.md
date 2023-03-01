@@ -1,5 +1,5 @@
 # ClimateXPrep
-![example workflow](https://github.com/nannau/climatex-prep/actions/workflows/python-package-conda/badge.svg)
+![example workflow](https://github.com/nannau/ClimatExPrep/actions/workflows/python-package-conda.yml/badge.svg?event=push)
 [![codecov](https://codecov.io/gh/nannau/climatex-prep/branch/main/graph/badge.svg?token=XXRLD3076V)](https://codecov.io/gh/nannau/climatex-prep)
 
 A repository of software for preprocessing climatex data for the deep learning pipeline.
