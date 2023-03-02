@@ -6,6 +6,7 @@ A repository of software for preprocessing climatex data for the deep learning p
 
 ### Requirements
 * [Miniconda](https://docs.conda.io/en/latest/miniconda.html) with Python >= 3.7
+* [xESMF](https://xesmf.readthedocs.io/en/latest/)
 
 
 ### Installation
