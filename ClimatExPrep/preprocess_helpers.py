@@ -256,4 +256,4 @@ def write_to_zarr(ds: xr.Dataset, path: str) -> None:
             "history": f"Created by {__file__} on {datetime.now()}",
         }
     )
-    ds.chunk({"time": "auto"}).to_zarr(path, mode="a", append_dim="time")
+    ds.chunk({"time": "auto"}).to_zarr(f"{path}.zarr", mode="a")
