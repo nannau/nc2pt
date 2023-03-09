@@ -1,4 +1,4 @@
-name: ClimateXPrep
+name: ClimatExPrep
 dependencies:
   - python>=3.7
   - conda-forge::xesmf
