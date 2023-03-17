@@ -1,11 +1,11 @@
 hr:
-  path: /home/nannau/jabbar/data/wrf/*.nc
+  path: /home/nannau/data/wrf/*.nc
   is_west_negative: true
-  output_path: /home/nannau/gom/wrf
+  output_path: /home/nannau/data/wrf/
 lr:
-  path: /home/nannau/jabbar/data/era5/*.nc
+  path: /home/nannau/data/era5/*.nc
   is_west_negative: false
-  output_path: /home/nannau/gom/era5
+  output_path: /home/nannau/data/era5/
 
 # If the variables are the same, but are named differently in
 # the netCDF files, use the yaml key as the "homogenizing" key, and
@@ -25,12 +25,10 @@ vars:
     alternative_names: ["v10", "vas"]
     standardize: true
     standardize_style: "normal"
-  tas:
-    alternative_names: ["temperature", "surface temp"]
+  ps:
+    alternative_names: ["pressure", "Surface pressure"]
     standardize: true
-    standardize_style: "normal"
     lr_only: true
-
 dims:
   time:
     alternative_names: ["Time", "Times", "times"]
@@ -53,6 +51,7 @@ time:
   full:
     start: "20001001T01:00:00"
     end: "20150929T23:00:00"
+    # end: "20010929T23:00:00"
   # use this to select which years to reserve for testing
   # the remaining years in full will be used for training
   test_years: [2000, 2009, 2014]
@@ -74,8 +73,8 @@ randomize: true
 
 # dask client parameters
 compute:
-  threads_per_worker: 2
-  memory_limit: "20GB"
+  threads_per_worker: 24
+  memory_limit: "60GB"
   dashboard_address: 8787
 
 # define torch
