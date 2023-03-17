@@ -47,7 +47,7 @@ def main(cfg) -> None:
                         with Pool() as pool:
                             pmask = pool.starmap(parallel_loop, pool_tuple, chunksize=1)
 
-        end = timer()h 
+        end = timer()
         logging.info(f"Finished {res} dataset in {timedelta(seconds=end-start)}")
 
 
