@@ -11,7 +11,6 @@ import os
 @hydra.main(version_base=None, config_path="conf", config_name="config")
 def main(cfg) -> None:
 
-    torch.manual_seed(cfg.loader.seed)
 
     for res in ["lr", "hr"]:
         start = timer()
@@ -27,11 +26,12 @@ def main(cfg) -> None:
 
                 if cfg.loader.randomize:
                     # Randomize the order of the files
+                    torch.manual_seed(cfg.loader.seed)
                     logging.info("Split the files into random batches...")
                     split = torch.split(torch.randperm(nfiles), cfg.loader.batch_size)
                 else:
                     # Split the files into batches
-                    logging.info("Split the files int0 non-random batches")
+                    logging.info("Split the files into non-random batches")
                     split = torch.split(torch.arange(nfiles), cfg.loader.batch_size)
 
                 # Create parent dir if it doesn't exist for each variable
@@ -43,9 +43,9 @@ def main(cfg) -> None:
                 for i, batch in enumerate(tqdm(split, desc=f"Creating batches for {s} {res} dataset")):
                     batchlist = [
                         torch.load(
-                            f"{cfg[res].output_path}/{s}/{var}/{var}_{i}.pt"
+                            f"{cfg[res].output_path}/{s}/{var}/{var}_{j}.pt"
                         )
-                        for i in batch
+                        for j in batch
                     ]
                     write_batch = torch.stack(batchlist)
                     torch.save(write_batch, f"{cfg[res].output_path}/{s}/{var}_batch_{cfg.loader.batch_size}/batch_{i}.pt")
