@@ -35,6 +35,7 @@ def main(cfg) -> None:
                     for i in tqdm(np.arange(ds.time.size), desc=f"{s} {res} {var}"):
                         arr = ds[var].transpose("time", "rlat", "rlon")[i, ...].values
                         x = torch.tensor(np.array(arr))
+                        assert not torch.isnan(x).any(), f"NaNs found in {s} {res} {var} {i}"
                         torch.save(x, f"{cfg[res].output_path}/{s}/{var}/{var}_{i}.pt")
         end = timer()
         logging.info(f"Finished {res} dataset in {timedelta(seconds=end-start)}")
