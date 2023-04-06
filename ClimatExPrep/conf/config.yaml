@@ -50,7 +50,7 @@ time:
   # this defines the full dataset from which to subset
   full:
     start: "20001001T01:00:00"
-    end: "20150929T23:00:00"
+    end: "20150928T12:00:00"
     # end: "20010929T23:00:00"
   # use this to select which years to reserve for testing
   # the remaining years in full will be used for training
@@ -60,11 +60,11 @@ time:
 spatial:
   scale_factor: 8
   x:
-    first_index: 0
-    last_index: 632
+    first_index: 110
+    last_index: 622
   y:
-    first_index: 2
-    last_index: 634
+    first_index: 20
+    last_index: 532
 
 # xarray netcdf engine
 engine: h5netcdf
