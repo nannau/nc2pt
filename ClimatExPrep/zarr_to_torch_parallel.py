@@ -15,6 +15,7 @@ from tqdm.contrib.concurrent import process_map
 def parallel_loop(i, path, arr):
     arr = arr.values
     x = torch.tensor(np.array(arr))
+    assert not torch.isnan(x).any(), f"NaNs found in {s} {res} {var} {i}"
     torch.save(x, path)
 
 @hydra.main(version_base=None, config_path="conf", config_name="config")
