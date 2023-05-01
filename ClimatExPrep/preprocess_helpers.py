@@ -1,10 +1,11 @@
 import xarray as xr
-import xesmf as xe
+# import xesmf as xe
+import pandas as pd
 
 import logging
 from datetime import datetime
 from typing import Tuple
-
+import glob
 
 class MissingKeys(Exception):
     pass
@@ -31,10 +32,11 @@ def regrid_align(ds: xr.Dataset, grid: xr.Dataset) -> xr.Dataset:
     """
 
     # Regrid to the given grid.
-    regridder = xe.Regridder(ds, grid, "bilinear")
-    ds = regridder(ds)
-
-    return ds
+    # regridder = xe.Regridder(ds, grid, "bilinear")
+    # ds = regridder(ds)
+    # ds.interp_like(grid)
+    return ds.interp(coords={"lat": grid.lat, "lon": grid.lon}, method="linear")
+    # return 
 
 
 def load_grid(path: str, engine: str = "netcdf4") -> xr.Dataset:
@@ -54,7 +56,7 @@ def load_grid(path: str, engine: str = "netcdf4") -> xr.Dataset:
     chunky = {"time": "auto"}
 
     return xr.open_mfdataset(
-        path, engine=engine, data_vars="minimal", chunks=chunky, parallel=True
+        glob.glob(path, recursive=True), engine=engine, data_vars="minimal", chunks=chunky, parallel=True
     )
 
 
@@ -75,6 +77,13 @@ def slice_time(ds: xr.Dataset, start: str, end: str) -> xr.Dataset:
     ds : xarray.Dataset
         Sliced dataset.
     """
+    for var in ds.data_vars:
+        if "time" in ds[var].dims:
+            ds[var] = ds[var].sel(time=slice(start, end), drop=True)
+        elif "forecast_initial_time" in ds[var].dims:
+            ds[var] = ds[var].sel(forecast_initial_time=slice(start, end), drop=True)
+        else:
+            raise ValueError("Time dimension not found in dataset.")
 
     ds = ds.sel(time=slice(start, end), drop=True)
 
@@ -173,6 +182,30 @@ def coarsen_lr(ds, scale_factor):
 
     return ds
 
+def convert_time(ds: xr.Dataset, cfg: dict) -> xr.Dataset:
+    """Flattens the time dimensions to a single dimension."""
+
+    for var in ds.data_vars:
+        timelist = []
+        fieldlist = []
+        if cfg.vars[var]["slice_on_forecast_initial_time"]:
+            logging.info(f"Converting time for {var}...")
+            da_stacked = ds[var].stack(time=('forecast_initial_time', 'forecast_hour'))
+            print(da_stacked.indexes["time"][0][0], da_stacked.indexes["time"][0][1])
+            for t, (init_time, hour) in enumerate(da_stacked.indexes["time"]):
+                time_delta = pd.Timedelta(hours=int(hour)-1)
+                time = pd.to_datetime(init_time) + time_delta
+                fieldlist.append(da_stacked.sel({"time": init_time}).isel({"forecast_hour": int(hour)-1}))
+                timelist.append(time)
+            
+            ds[var] = xr.concat(fieldlist, dim="time")
+            ds[var] = ds[var].assign_coords(time=timelist)
+            if ["forecast_hour", "forecast_initial_time"] in ds[var].dims:
+                ds[var] = ds[var].drop_vars(["forecast_hour", "forecast_initial_time"])
+        else:
+            continue
+
+    return ds
 
 def homogenize_names(ds: xr.Dataset, keymaps: dict, key_attr: str) -> xr.Dataset:
     """Homogenize the names of the variables in the dataset.

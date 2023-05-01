@@ -5,7 +5,7 @@ import hydra
 from dask.distributed import Client
 import multiprocessing
 from datetime import timedelta
-import torch
+# import torch
 
 from ClimatExPrep.preprocess_helpers import (
     load_grid,
@@ -16,27 +16,20 @@ from ClimatExPrep.preprocess_helpers import (
     train_test_split,
     homogenize_names,
     match_longitudes,
+    convert_time,
     compute_standardization,
     write_to_zarr
 )
 
 
-def make_batches(ds, steps_per_file, randomize):
-    return (
-        torch.split(torch.randperm(ds.time.size), steps_per_file)
-        if randomize
-        else torch.split(torch.arange(ds.time.size), steps_per_file)
-    )
-
-
 @hydra.main(version_base=None, config_path="conf", config_name="config")
 def main(cfg) -> None:
-    cores = int(multiprocessing.cpu_count()/24)
+    cores = int(multiprocessing.cpu_count())
     print(f"Using {cores} cores")
 
     with Client(
-        n_workers=cores,
-        threads_per_worker=cfg.compute.threads_per_worker,
+        # n_workers=cores,
+        # threads_per_worker=cfg.compute.threads_per_worker,
         memory_limit=cfg.compute.memory_limit,
         processes=False,
         dashboard_address=cfg.compute.dashboard_address,
@@ -87,6 +80,10 @@ def main(cfg) -> None:
         # Coarsen the low resolution dataset.
         logging.info("Coarsening low resolution dataset...")
         lr = coarsen_lr(lr, cfg.spatial.scale_factor)
+
+        # convert the time dimension to be flat
+        logging.info("Flattening time dimension...")
+        lr = convert_time(lr)
 
         # Train test split
         logging.info("Splitting dataset...")
