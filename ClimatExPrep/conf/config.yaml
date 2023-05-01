@@ -1,11 +1,11 @@
 hr:
-  path: /home/nannau/data/wrf/*.nc
+  path: /home/nannau/scratch/climatex/data/netcdf/hr/**/*.nc
   is_west_negative: true
-  output_path: /home/nannau/data/wrf/
+  output_path: /home/nannau/scratch/climatex/data/proc/
 lr:
-  path: /home/nannau/data/era5/*.nc
+  path: /home/nannau/scratch/climatex/data/netcdf/lr/*.nc
   is_west_negative: false
-  output_path: /home/nannau/data/era5/
+  output_path: /home/nannau/scratch/climatex/data/proc/
 
 # If the variables are the same, but are named differently in
 # the netCDF files, use the yaml key as the "homogenizing" key, and
@@ -21,14 +21,22 @@ vars:
     alternative_names: ["u10", "uas"]
     standardize: true
     standardize_style: "normal"
+    slice_on_forecast_initial_time: false
   V10:
     alternative_names: ["v10", "vas"]
     standardize: true
     standardize_style: "normal"
-  ps:
-    alternative_names: ["pressure", "Surface pressure"]
+    slice_on_forecast_initial_time: false
+  pr:
+    alternative_names: ["PREC"]
     standardize: true
-    lr_only: true
+    accumulated: true
+    slice_on_forecast_initial_time: true
+  tas:
+    alternative_names: ["T2", "surface temperature"]
+    standardize: true
+    slice_on_forecast_initial_time: false
+
 dims:
   time:
     alternative_names: ["Time", "Times", "times"]
@@ -67,7 +75,7 @@ spatial:
     last_index: 532
 
 # xarray netcdf engine
-engine: h5netcdf
+engine: store
 steps_per_file: 32
 randomize: true
 
