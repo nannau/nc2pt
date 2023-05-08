@@ -8,6 +8,15 @@ import numpy as np
 import hydra
 import logging
 import os
+from multiprocessing import Pool
+from tqdm.contrib.concurrent import process_map
+
+
+def parallel_loop(i, path, arr):
+    arr = arr.values
+    x = torch.tensor(np.array(arr))
+    assert not torch.isnan(x).any(), f"NaNs found in {i}"
+    torch.save(x, path)
 
 @hydra.main(version_base=None, config_path="conf", config_name="config")
 def main(cfg) -> None:
@@ -32,16 +41,18 @@ def main(cfg) -> None:
 
                     logging.info(f"Saving {s} {res} {var} to torch tensors...")
                     logging.info(f"Writing to {cfg[res].output_path}/{s}/{var}/")
-                    for i in tqdm(np.arange(ds.time.size), desc=f"{s} {res} {var}"):
-                        arr = ds[var].transpose("time", "rlat", "rlon")[i, ...].values
-                        x = torch.tensor(np.array(arr))
-                        assert not torch.isnan(x).any(), f"NaNs found in {s} {res} {var} {i}"
-                        torch.save(x, f"{cfg[res].output_path}/{s}/{var}/{var}_{i}.pt")
+                    indices = np.arange(ds.time.size)
+                    partial_paths = [f"{cfg[res].output_path}/{s}/{var}/{var}_{i}.pt" for i in indices]
+                    pool_tuple = zip(indices, partial_paths, ds[var].transpose("time", "rlat", "rlon"))
+                    if __name__ == '__main__':
+                        with Pool() as pool:
+                            pmask = pool.starmap(parallel_loop, pool_tuple, chunksize=1)
+
         end = timer()
         logging.info(f"Finished {res} dataset in {timedelta(seconds=end-start)}")
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
-    with Client(n_workers=8, threads_per_worker=2, processes=False, dashboard_address=8787, memory_limit='4GB'):
-        main()
+    # with Client(n_workers=8, threads_per_worker=2, processes=False, dashboard_address=8787, memory_limit='4GB'):
+    main()

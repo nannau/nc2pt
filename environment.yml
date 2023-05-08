@@ -3,5 +3,7 @@ dependencies:
   - conda-forge::xesmf
   - conda-forge::dask
   - conda-forge::netCDF4
-  - hydra-core
-  - h5netcdf
+  - conda-forge::hydra-core
+  - conda-forge::h5netcdf
+  - pytorch::pytorch
+  - pip

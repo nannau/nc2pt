@@ -5,6 +5,7 @@ import hydra
 from dask.distributed import Client
 import multiprocessing
 from datetime import timedelta
+import torch
 
 from ClimatExPrep.preprocess_helpers import (
     load_grid,
@@ -18,7 +19,6 @@ from ClimatExPrep.preprocess_helpers import (
     compute_standardization,
     write_to_zarr
 )
-import torch
 
 
 def make_batches(ds, steps_per_file, randomize):
@@ -31,7 +31,7 @@ def make_batches(ds, steps_per_file, randomize):
 
 @hydra.main(version_base=None, config_path="conf", config_name="config")
 def main(cfg) -> None:
-    cores = int(multiprocessing.cpu_count()/2)
+    cores = int(multiprocessing.cpu_count()/24)
     print(f"Using {cores} cores")
 
     with Client(
