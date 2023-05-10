@@ -1,11 +1,14 @@
 import xarray as xr
-# import xesmf as xe
+
+import xesmf as xe
 import pandas as pd
 
 import logging
 from datetime import datetime
 from typing import Tuple
 import glob
+import numpy as np
+
 
 class MissingKeys(Exception):
     pass
@@ -32,14 +35,15 @@ def regrid_align(ds: xr.Dataset, grid: xr.Dataset) -> xr.Dataset:
     """
 
     # Regrid to the given grid.
-    # regridder = xe.Regridder(ds, grid, "bilinear")
-    # ds = regridder(ds)
+    regridder = xe.Regridder(ds, grid, "bilinear")
+    ds = regridder(ds)
+    return ds
     # ds.interp_like(grid)
-    return ds.interp(coords={"lat": grid.lat, "lon": grid.lon}, method="linear")
-    # return 
+    # return ds.interp(coords={"lat": grid.lat, "lon": grid.lon}, method="linear")
+    # return
 
 
-def load_grid(path: str, engine: str = "netcdf4") -> xr.Dataset:
+def load_grid(path: str, engine: str = "netcdf4", chunks: int = 100) -> xr.Dataset:
     """Load the grid to regrid to.
 
     Parameters
@@ -53,11 +57,17 @@ def load_grid(path: str, engine: str = "netcdf4") -> xr.Dataset:
         Grid to regrid to.
     """
 
-    chunky = {"time": "auto"}
+    chunky = {"time": chunks}
 
-    return xr.open_mfdataset(
-        glob.glob(path, recursive=True), engine=engine, data_vars="minimal", chunks=chunky, parallel=True
-    )
+    if "*" in path:
+        return xr.open_mfdataset(
+            glob.glob(path, recursive=True),
+            engine=engine,
+            chunks=chunky,
+            parallel=True,
+        )
+    else:
+        return xr.open_dataset(path, engine=engine, chunks=chunky)
 
 
 def slice_time(ds: xr.Dataset, start: str, end: str) -> xr.Dataset:
@@ -77,14 +87,6 @@ def slice_time(ds: xr.Dataset, start: str, end: str) -> xr.Dataset:
     ds : xarray.Dataset
         Sliced dataset.
     """
-    for var in ds.data_vars:
-        if "time" in ds[var].dims:
-            ds[var] = ds[var].sel(time=slice(start, end), drop=True)
-        elif "forecast_initial_time" in ds[var].dims:
-            ds[var] = ds[var].sel(forecast_initial_time=slice(start, end), drop=True)
-        else:
-            raise ValueError("Time dimension not found in dataset.")
-
     ds = ds.sel(time=slice(start, end), drop=True)
 
     return ds
@@ -152,12 +154,22 @@ def crop_field(ds, scale_factor, x, y):
     assert "rlon" in ds.dims, "rlon not in dims, check dataset"
     assert "rlat" in ds.dims, "rlat not in dims, check dataset"
 
-    ds = ds.isel(rlon=slice(x.first_index, x.last_index), rlat=slice(y.first_index, y.last_index), drop=True)
+    ds = ds.isel(
+        rlon=slice(x.first_index, x.last_index),
+        rlat=slice(y.first_index, y.last_index),
+        drop=True,
+    )
 
-    assert (x.last_index - x.first_index) % scale_factor == 0, "x dimension not divisible by scale factor, check config"
-    assert (y.last_index - y.first_index) % scale_factor == 0, "y dimension not divisible by scale factor, check config"
+    assert (
+        x.last_index - x.first_index
+    ) % scale_factor == 0, "x dimension not divisible by scale factor, check config"
+    assert (
+        y.last_index - y.first_index
+    ) % scale_factor == 0, "y dimension not divisible by scale factor, check config"
 
-    assert ds.rlon.size == ds.rlat.size, "rlon and rlat not the same size, check dataset"
+    assert (
+        ds.rlon.size == ds.rlat.size
+    ), "rlon and rlat not the same size, check dataset"
 
     return ds
 
@@ -182,30 +194,6 @@ def coarsen_lr(ds, scale_factor):
 
     return ds
 
-def convert_time(ds: xr.Dataset, cfg: dict) -> xr.Dataset:
-    """Flattens the time dimensions to a single dimension."""
-
-    for var in ds.data_vars:
-        timelist = []
-        fieldlist = []
-        if cfg.vars[var]["slice_on_forecast_initial_time"]:
-            logging.info(f"Converting time for {var}...")
-            da_stacked = ds[var].stack(time=('forecast_initial_time', 'forecast_hour'))
-            print(da_stacked.indexes["time"][0][0], da_stacked.indexes["time"][0][1])
-            for t, (init_time, hour) in enumerate(da_stacked.indexes["time"]):
-                time_delta = pd.Timedelta(hours=int(hour)-1)
-                time = pd.to_datetime(init_time) + time_delta
-                fieldlist.append(da_stacked.sel({"time": init_time}).isel({"forecast_hour": int(hour)-1}))
-                timelist.append(time)
-            
-            ds[var] = xr.concat(fieldlist, dim="time")
-            ds[var] = ds[var].assign_coords(time=timelist)
-            if ["forecast_hour", "forecast_initial_time"] in ds[var].dims:
-                ds[var] = ds[var].drop_vars(["forecast_hour", "forecast_initial_time"])
-        else:
-            continue
-
-    return ds
 
 def homogenize_names(ds: xr.Dataset, keymaps: dict, key_attr: str) -> xr.Dataset:
     """Homogenize the names of the variables in the dataset.
@@ -238,12 +226,13 @@ def homogenize_names(ds: xr.Dataset, keymaps: dict, key_attr: str) -> xr.Dataset
             elif "lr_only" in keymaps[name] and keymaps[name]["lr_only"]:
                 continue
             else:
-                raise MissingKeys(f"{name} or alternative not found in dataset.")
-
+                continue
     return ds
 
 
-def compute_standardization(ds: xr.Dataset, precomputed: xr.Dataset = None) -> xr.Dataset:
+def compute_standardization(
+    ds: xr.Dataset, var: str, precomputed: xr.Dataset = None
+) -> xr.Dataset:  # sourcery skip: avoid-builtin-shadow
     """Standardize the statistics of the dataset.
 
     Parameters
@@ -257,7 +246,7 @@ def compute_standardization(ds: xr.Dataset, precomputed: xr.Dataset = None) -> x
     ds : xarray.Dataset
         Dataset with standardized statistics.
     """
-    for var in ds.data_vars:
+    if var != "pr":
         if precomputed is not None:
             mean = precomputed[var].attrs["mean"]
             std = precomputed[var].attrs["std"]
@@ -265,16 +254,16 @@ def compute_standardization(ds: xr.Dataset, precomputed: xr.Dataset = None) -> x
             mean = ds[var].mean()
             std = ds[var].std()
         ds[var] = (ds[var] - mean) / std
-        ds[var] = ds[var].assign_attrs(
-            {
-                "mean": float(mean),
-                "std": float(std)
-            }
-        )
+        ds[var] = ds[var].assign_attrs({"mean": float(mean), "std": float(std)})
+    else:
+        log_precip = lambda x: np.log10(x + 1)
+        ds[var] = xr.apply_ufunc(log_precip, ds[var], dask="parallelized")
+        ds[var] = ds[var].assign_attrs({"transform": "log10"})
+
     return ds
 
 
-def write_to_zarr(ds: xr.Dataset, path: str) -> None:
+def write_to_zarr(ds: xr.Dataset, path: str, chunks: int = 500) -> None:
     """Write the output to disk.
 
     Parameters
@@ -289,4 +278,4 @@ def write_to_zarr(ds: xr.Dataset, path: str) -> None:
             "history": f"Created by {__file__} on {datetime.now()}",
         }
     )
-    ds.chunk({"time": "auto"}).to_zarr(f"{path}.zarr", mode="a")
+    ds.chunk({"time": chunks}).to_zarr(f"{path}.zarr", mode="a")

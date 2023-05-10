@@ -1,12 +1,3 @@
-hr:
-  path: /home/nannau/scratch/climatex/data/netcdf/hr/**/*.nc
-  is_west_negative: true
-  output_path: /home/nannau/scratch/climatex/data/proc/
-lr:
-  path: /home/nannau/scratch/climatex/data/netcdf/lr/*.nc
-  is_west_negative: false
-  output_path: /home/nannau/scratch/climatex/data/proc/
-
 # If the variables are the same, but are named differently in
 # the netCDF files, use the yaml key as the "homogenizing" key, and
 # list the alternative name in "alternative_names".
@@ -16,26 +7,53 @@ lr:
 # you can specify if a variable only occurs in the hr or lr
 # dataset respectively with hr_only or lr_only: true
 # The same logic above applies for the dimensions, dims, and coordinates, coords.
+
+hr_grid_ref_path: "/home/nannau/jabbar/data/train_netcdf/ref/hr_ref.nc"
+
 vars:
-  U10:
-    alternative_names: ["u10", "uas"]
+  # pr:
+  #   hr:
+  #     path: /home/nannau/jabbar/data/train_netcdf/hr/PREC/*.nc
+  #     is_west_negative: true
+  #   lr:
+  #     path: /home/nannau/jabbar/data/train_netcdf/lr/pr_hourly.nc
+  #     is_west_negative: false
+  #   output_path: /home/nannau/gom/proc/
+  #   alternative_names: ["PREC"]
+  #   standardize: true
+
+  # uas:
+  #   hr:
+  #     path: /home/nannau/jabbar/data/train_netcdf/hr/U10/*.nc
+  #     is_west_negative: true
+  #   lr:
+  #     path: /home/nannau/jabbar/data/train_netcdf/lr/uas_sliced_cropped.nc
+  #     is_west_negative: false
+  #   output_path: /home/nannau/gom/proc/
+  #   alternative_names: ["U10", "u10", "uas"]
+  #   standardize: true
+
+  vas:
+    hr:
+      path: /home/nannau/jabbar/data/train_netcdf/hr/V10/*.nc
+      is_west_negative: true
+    lr:
+      path: /home/nannau/jabbar/data/train_netcdf/lr/vas_sliced_cropped.nc
+      is_west_negative: false
+    output_path: /home/nannau/gom/proc/
+    alternative_names: ["V10", "v10", "vas"]
     standardize: true
-    standardize_style: "normal"
-    slice_on_forecast_initial_time: false
-  V10:
-    alternative_names: ["v10", "vas"]
-    standardize: true
-    standardize_style: "normal"
-    slice_on_forecast_initial_time: false
-  pr:
-    alternative_names: ["PREC"]
-    standardize: true
-    accumulated: true
-    slice_on_forecast_initial_time: true
-  tas:
-    alternative_names: ["T2", "surface temperature"]
-    standardize: true
-    slice_on_forecast_initial_time: false
+
+  # tas:
+  #   hr:
+  #     path: /home/nannau/jabbar/data/train_netcdf/hr/T2/*.nc
+  #     is_west_negative: true
+  #   lr:
+  #     path: /home/nannau/jabbar/data/train_netcdf/lr/tas_sliced_cropped.nc
+  #     is_west_negative: false
+  #   output_path: /home/nannau/gom/proc/
+  #   alternative_names: ["T2", "surface temperature"]
+  #   standardize: true
 
 dims:
   time:
@@ -57,9 +75,9 @@ time:
   # Crop to the dataset with the shortest run
   # this defines the full dataset from which to subset
   full:
-    start: "20001001T01:00:00"
+    start: "20001001T06:00:00"
     end: "20150928T12:00:00"
-    # end: "20010929T23:00:00"
+
   # use this to select which years to reserve for testing
   # the remaining years in full will be used for training
   test_years: [2000, 2009, 2014]
@@ -75,7 +93,7 @@ spatial:
     last_index: 532
 
 # xarray netcdf engine
-engine: store
+engine: h5netcdf
 steps_per_file: 32
 randomize: true
 
