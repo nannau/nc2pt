@@ -11,7 +11,7 @@ A repository of software for preprocessing climatex data for the deep learning p
 
 ### 💽 Installation
 xESMF is only available through Conda, so you will have to be able to install conda on your system. Unfortunately, this is limiting because certain HPCs don't allow conda. There may be workarounds but I have not explored them. 
-<!-- 
+
 ```
 ### 📋 Configuration
 Please see `ClimatExPrep/conf/config.yml` for an example configuration.
