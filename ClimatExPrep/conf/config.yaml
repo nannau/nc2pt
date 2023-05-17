@@ -11,16 +11,16 @@
 hr_grid_ref_path: "/home/nannau/jabbar/data/train_netcdf/ref/hr_ref.nc"
 
 vars:
-  # pr:
-  #   hr:
-  #     path: /home/nannau/jabbar/data/train_netcdf/hr/PREC/*.nc
-  #     is_west_negative: true
-  #   lr:
-  #     path: /home/nannau/jabbar/data/train_netcdf/lr/pr_hourly.nc
-  #     is_west_negative: false
-  #   output_path: /home/nannau/gom/proc/
-  #   alternative_names: ["PREC"]
-  #   standardize: true
+  pr:
+    hr:
+      path: /home/nannau/jabbar/data/train_netcdf/hr/PREC/*.nc
+      is_west_negative: true
+    lr:
+      path: /home/nannau/jabbar/data/train_netcdf/lr/pr_hourly.nc
+      is_west_negative: false
+    output_path: /home/nannau/gom/proc/
+    alternative_names: ["PREC"]
+    standardize: true
 
   # uas:
   #   hr:
@@ -33,16 +33,16 @@ vars:
   #   alternative_names: ["U10", "u10", "uas"]
   #   standardize: true
 
-  vas:
-    hr:
-      path: /home/nannau/jabbar/data/train_netcdf/hr/V10/*.nc
-      is_west_negative: true
-    lr:
-      path: /home/nannau/jabbar/data/train_netcdf/lr/vas_sliced_cropped.nc
-      is_west_negative: false
-    output_path: /home/nannau/gom/proc/
-    alternative_names: ["V10", "v10", "vas"]
-    standardize: true
+  # vas:
+  #   hr:
+  #     path: /home/nannau/jabbar/data/train_netcdf/hr/V10/*.nc
+  #     is_west_negative: true
+  #   lr:
+  #     path: /home/nannau/jabbar/data/train_netcdf/lr/vas_sliced_cropped.nc
+  #     is_west_negative: false
+  #   output_path: /home/nannau/gom/proc/
+  #   alternative_names: ["V10", "v10", "vas"]
+  #   standardize: true
 
   # tas:
   #   hr:

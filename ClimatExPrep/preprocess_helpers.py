@@ -230,6 +230,10 @@ def homogenize_names(ds: xr.Dataset, keymaps: dict, key_attr: str) -> xr.Dataset
     return ds
 
 
+def standardize(x, mean, std):
+    return (x - mean) / std
+
+
 def compute_standardization(
     ds: xr.Dataset, var: str, precomputed: xr.Dataset = None
 ) -> xr.Dataset:  # sourcery skip: avoid-builtin-shadow
@@ -246,19 +250,25 @@ def compute_standardization(
     ds : xarray.Dataset
         Dataset with standardized statistics.
     """
-    if var != "pr":
-        if precomputed is not None:
-            mean = precomputed[var].attrs["mean"]
-            std = precomputed[var].attrs["std"]
-        else:
-            mean = ds[var].mean()
-            std = ds[var].std()
-        ds[var] = (ds[var] - mean) / std
-        ds[var] = ds[var].assign_attrs({"mean": float(mean), "std": float(std)})
+    logging.info("Computing mean and standard deviation...")
+    if precomputed is not None:
+        mean = precomputed[var].attrs["mean"]
+        std = precomputed[var].attrs["std"]
     else:
-        log_precip = lambda x: np.log10(x + 1)
-        ds[var] = xr.apply_ufunc(log_precip, ds[var], dask="parallelized")
-        ds[var] = ds[var].assign_attrs({"transform": "log10"})
+        logging.info("Calculation mean...")
+        mean = ds[var].sum().compute() / ds[var].size
+        logging.info("Calculation std...")
+        std = ds[var].std(axis=0).compute().std()
+
+    logging.info("Applying function...")
+    ds[var] = xr.apply_ufunc(
+        standardize,
+        ds[var],
+        mean,
+        std,
+        dask="parallelized",
+    )
+    ds[var] = ds[var].assign_attrs({"mean": float(mean), "std": float(std)})
 
     return ds
 
@@ -279,3 +289,11 @@ def write_to_zarr(ds: xr.Dataset, path: str, chunks: int = 500) -> None:
         }
     )
     ds.chunk({"time": chunks}).to_zarr(f"{path}.zarr", mode="a")
+
+
+def unit_change(x):
+    return x * 3600
+
+
+def log_transform(x):
+    return np.log10(x + 1)
