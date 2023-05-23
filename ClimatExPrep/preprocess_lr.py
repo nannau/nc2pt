@@ -81,10 +81,10 @@ def start(cfg) -> None:
                 logging.info("Changing units of lr...")
                 # function to change units to mm/hr
                 lr[var] = xr.apply_ufunc(unit_change, lr[var], dask="parallelized")
-                lr[var] = lr[var].assign_attrs({"units": "mm/h"})
                 logging.info("Apply log transform to lr...")
                 lr[var] = xr.apply_ufunc(log_transform, lr[var], dask="parallelized")
-                lr[var] = lr[var].assign_attrs({"transform": "log10(1+X)"})
+                lr[var].attrs["units"] = "mm/h"
+                lr[var].attrs["transform"] = "log10(1+X)"
 
             # Train test split
             logging.info("Splitting dataset...")

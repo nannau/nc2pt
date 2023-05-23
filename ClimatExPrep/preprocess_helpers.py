@@ -1,5 +1,4 @@
 import xarray as xr
-
 import xesmf as xe
 import pandas as pd
 
@@ -43,7 +42,7 @@ def regrid_align(ds: xr.Dataset, grid: xr.Dataset) -> xr.Dataset:
     # return
 
 
-def load_grid(path: str, engine: str = "netcdf4", chunks: int = 100) -> xr.Dataset:
+def load_grid(path: str, engine: str = "netcdf4", chunks: int = 250) -> xr.Dataset:
     """Load the grid to regrid to.
 
     Parameters
@@ -254,12 +253,13 @@ def compute_standardization(
     if precomputed is not None:
         mean = precomputed[var].attrs["mean"]
         std = precomputed[var].attrs["std"]
+
     else:
         logging.info("Calculation mean...")
-        mean = ds[var].sum().compute() / ds[var].size
+        mean = ds[var].mean().compute()
         logging.info("Calculation std...")
-        std = ds[var].std(axis=0).compute().std()
-
+        std = ds[var].std().compute()
+    
     logging.info("Applying function...")
     ds[var] = xr.apply_ufunc(
         standardize,
@@ -268,7 +268,9 @@ def compute_standardization(
         std,
         dask="parallelized",
     )
-    ds[var] = ds[var].assign_attrs({"mean": float(mean), "std": float(std)})
+
+    ds[var].attrs["mean"] = float(mean)
+    ds[var].attrs["std"] = float(std)
 
     return ds
 
@@ -297,3 +299,6 @@ def unit_change(x):
 
 def log_transform(x):
     return np.log10(x + 1)
+
+def maxnorm(x, max):
+    return x / max

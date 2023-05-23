@@ -8,17 +8,17 @@
 # dataset respectively with hr_only or lr_only: true
 # The same logic above applies for the dimensions, dims, and coordinates, coords.
 
-hr_grid_ref_path: "/home/nannau/jabbar/data/train_netcdf/ref/hr_ref.nc"
+hr_grid_ref_path: "/home/nannau/climatex/ClimatExPrep/ClimatExPrep/data/hr_ref.nc"
 
 vars:
   pr:
     hr:
-      path: /home/nannau/jabbar/data/train_netcdf/hr/PREC/*.nc
+      path: /home/nannau/climatex/data/fire_vars/hr/PREC/*.nc
       is_west_negative: true
     lr:
-      path: /home/nannau/jabbar/data/train_netcdf/lr/pr_hourly.nc
+      path: /home/nannau/climatex/data/fire_vars/lr/pr_hourly.nc
       is_west_negative: false
-    output_path: /home/nannau/gom/proc/
+    output_path: /home/nannau/climatex/data/fire_vars/proc/
     alternative_names: ["PREC"]
     standardize: true
 

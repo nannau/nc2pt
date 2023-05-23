@@ -70,7 +70,7 @@ def start(cfg) -> None:
             if var == "pr":
                 logging.info("Apply log transform to hr...")
                 hr[var] = xr.apply_ufunc(log_transform, hr[var], dask="parallelized")
-                hr[var] = hr[var].assign_attrs({"transform": "log10(1+X)"})
+                hr[var].attrs["transform"] = "log10(1+X)"
 
             # Train test split
             logging.info("Splitting dataset...")
