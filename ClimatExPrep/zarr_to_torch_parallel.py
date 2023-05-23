@@ -33,7 +33,7 @@ def main(cfg) -> None:
             logging.info(f"Loading {s} {res} dataset...")
             for var in cfg.vars:
                 output_path = cfg.vars[var].output_path
-                with xr.open_zarr(f"{output_path}/{var}_{s}_{res}.zarr/") as ds:
+                with xr.open_zarr(f"{output_path}/{var}_{s}_{res}.zarr/", chunks={"time": 1000}) as ds:
                     # Create parent dir if it doesn't exist for each variable
                     if not os.path.exists(f"{output_path}/{s}/{var}/{res}"):
                         logging.info(
