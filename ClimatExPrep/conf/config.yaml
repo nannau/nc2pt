@@ -11,53 +11,122 @@
 hr_grid_ref_path: "/home/nannau/climatex/ClimatExPrep/ClimatExPrep/data/hr_ref.nc"
 
 vars:
-  pr:
-    hr:
-      path: /home/nannau/climatex/data/fire_vars/hr/PREC/*.nc
-      is_west_negative: true
-    lr:
-      path: /home/nannau/climatex/data/fire_vars/lr/pr_hourly.nc
-      is_west_negative: false
-    output_path: /home/nannau/climatex/data/fire_vars/proc/
-    alternative_names: ["PREC"]
-    standardize: true
+  # pr:
+  #   hr:
+  #     path: /home/nannau/climatex/data/data/hr/PREC/*.nc
+  #     is_west_negative: true
+  #   lr:
+  #     path: /home/nannau/climatex/data/2021/pr_cropped_renamed.nc
+  #     is_west_negative: false
+  #   output_path: /home/nannau/climatex/data/2021/
+  #   alternative_names: ["PREC"]
+  #   standardize: true
 
   # uas:
   #   hr:
-  #     path: /home/nannau/jabbar/data/train_netcdf/hr/U10/*.nc
+  #     path: //home/nannau/climatex/data/data/hr/U10/*.nc
   #     is_west_negative: true
   #   lr:
-  #     path: /home/nannau/jabbar/data/train_netcdf/lr/uas_sliced_cropped.nc
+  #     path: /home/nannau/climatex/data/2021/uas_cropped_2021.nc
   #     is_west_negative: false
-  #   output_path: /home/nannau/gom/proc/
+  #   output_path: /home/nannau/climatex/data/2021/
   #   alternative_names: ["U10", "u10", "uas"]
   #   standardize: true
 
-  # vas:
+  # Q2:
   #   hr:
-  #     path: /home/nannau/jabbar/data/train_netcdf/hr/V10/*.nc
+  #     path: //home/nannau/climatex/data/data/hr/Q2/*.nc
   #     is_west_negative: true
   #   lr:
-  #     path: /home/nannau/jabbar/data/train_netcdf/lr/vas_sliced_cropped.nc
+  #     path: /home/nannau/climatex/data/2021/huss_cropped_2021.nc
   #     is_west_negative: false
-  #   output_path: /home/nannau/gom/proc/
+  #   output_path: /home/nannau/climatex/data/2021/
+  #   alternative_names: ["hurs", "huss", "Q2", "q2"]
+  #   standardize: true
+
+  ps:
+    hr:
+      path: /home/nannau/climatex/data/PSFC/*.nc
+      is_west_negative: true
+    lr:
+      path: /home/nannau/climatex/data/2021/huss_cropped_2021.nc
+      is_west_negative: false
+    output_path: /home/nannau/climatex/data/2021/
+    alternative_names: ["ps", "PSFC", "huss", "Q2", "q2"]
+    standardize: true
+
+
+  # vas:
+  #   hr:
+  #     path: /home/nannau/climatex/data/data/hr/V10/*.nc
+  #     is_west_negative: true
+  #   lr:
+  #     path: /home/nannau/climatex/data/2021/vas_cropped_2021.nc
+  #     is_west_negative: false
+  #   output_path: /home/nannau/climatex/data/2021/
   #   alternative_names: ["V10", "v10", "vas"]
   #   standardize: true
 
   # tas:
   #   hr:
-  #     path: /home/nannau/jabbar/data/train_netcdf/hr/T2/*.nc
+  #     path: /home/nannau/climatex/data/data/hr/T2/*.nc
   #     is_west_negative: true
   #   lr:
-  #     path: /home/nannau/jabbar/data/train_netcdf/lr/tas_sliced_cropped.nc
+  #     path: /home/nannau/climatex/data/2021/tas_cropped_2021.nc
   #     is_west_negative: false
-  #   output_path: /home/nannau/gom/proc/
+  #   output_path: /home/nannau/climatex/data/2021/
+  #   alternative_names: ["T2", "surface temperature"]
+  #   standardize: true
+
+
+
+  # uas:
+  #   hr:
+  #     path: //home/nannau/climatex/data/fire_vars/hr/U10/*.nc
+  #     is_west_negative: true
+  #   lr:
+  #     path: /home/nannau/climatex/data/fire_vars/lr/uas_sliced_cropped.nc
+  #     is_west_negative: false
+  #   output_path: /home/nannau/climatex/data/fire_vars/proc/
+  #   alternative_names: ["U10", "u10", "uas"]
+  #   standardize: true
+
+  # Q2:
+  #   hr:
+  #     path: //home/nannau/climatex/data/fire_vars/hr/Q2/*.nc
+  #     is_west_negative: true
+  #   lr:
+  #     path: /home/nannau/climatex/data/fire_vars/lr/huss_sliced_cropped.nc
+  #     is_west_negative: false
+  #   output_path: /home/nannau/climatex/data/fire_vars/proc/
+  #   alternative_names: ["huss", "Q2", "q2"]
+  #   standardize: true
+
+  # vas:
+  #   hr:
+  #     path: /home/nannau/climatex/data/fire_vars/hr/V10/*.nc
+  #     is_west_negative: true
+  #   lr:
+  #     path: /home/nannau/climatex/data/fire_vars/lr/vas_sliced_cropped.nc
+  #     is_west_negative: false
+  #   output_path: /home/nannau/climatex/data/fire_vars/proc/
+  #   alternative_names: ["V10", "v10", "vas"]
+  #   standardize: true
+
+  # tas:
+  #   hr:
+  #     path: /home/nannau/climatex/data/fire_vars/hr/T2/*.nc
+  #     is_west_negative: true
+  #   lr:
+  #     path: /home/nannau/climatex/data/fire_vars/lr/tas_sliced_cropped.nc
+  #     is_west_negative: false
+  #   output_path: /home/nannau/climatex/data/fire_vars/proc/
   #   alternative_names: ["T2", "surface temperature"]
   #   standardize: true
 
 dims:
   time:
-    alternative_names: ["Time", "Times", "times"]
+    alternative_names: ["forecast_initial_time", "Time", "Times", "times"]
   rlat:
     alternative_names: ["rotated_latitude"]
     hr_only: true
@@ -76,7 +145,7 @@ time:
   # this defines the full dataset from which to subset
   full:
     start: "20001001T06:00:00"
-    end: "20150928T12:00:00"
+    end: "20250928T12:00:00"
 
   # use this to select which years to reserve for testing
   # the remaining years in full will be used for training
@@ -105,6 +174,6 @@ compute:
 
 # define torch
 loader:
-  batch_size: 64
+  batch_size: 12
   randomize: true
   seed: 0

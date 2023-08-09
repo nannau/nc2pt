@@ -11,11 +11,13 @@ import os
 from multiprocessing import Pool
 from joblib import Parallel, delayed
 from parallelbar import progress_imap, progress_starmap, progress_imapu
-
+import xbatcher
 
 def parallel_loop(i, path, arr):
     # i, path, arr = tup
+    # arr = arr.values  # [ds_indexed[i]]
     arr = arr.values
+    # print(arr.shape)
     x = torch.tensor(np.array(arr))
     assert not torch.isnan(x).any(), f"NaNs found in {i}"
     torch.save(x, path)
@@ -27,13 +29,17 @@ def main(cfg) -> None:
     # and saves each time step as a torch tensor to write to a pytorch file
     # format.
 
-    for res in ["lr", "hr"]:
+    # for res in ["lr", "hr"]:
+    for res in ["hr"]:
         start = timer()
         for s in ["train", "test"]:
             logging.info(f"Loading {s} {res} dataset...")
             for var in cfg.vars:
                 output_path = cfg.vars[var].output_path
-                with xr.open_zarr(f"{output_path}/{var}_{s}_{res}.zarr/", chunks={"time": 1000}) as ds:
+                with xr.open_zarr(
+                    f"{output_path}/{var}_{s}_{res}.zarr/", chunks={"time": 1000}
+                ) as ds:
+                    # ds = ds.chunk({"time": cfg.loader.batch_size})
                     # Create parent dir if it doesn't exist for each variable
                     if not os.path.exists(f"{output_path}/{s}/{var}/{res}"):
                         logging.info(
@@ -44,22 +50,45 @@ def main(cfg) -> None:
                     logging.info(f"Saving {s} {res} {var} to torch tensors...")
                     logging.info(f"Writing to {output_path}/{s}/{var}/{res}/")
                     indices = np.arange(ds.time.size)
-
+                    indices = torch.split(
+                        torch.tensor(indices), cfg.loader.batch_size, dim=0
+                    )
                     partial_paths = [
-                        f"{output_path}/{s}/{var}/{res}/{var}_{i}.pt" for i in indices
+                        f"{output_path}/{s}/{var}/{res}/{var}_{i}.pt"
+                        for i in range(len(indices))
                     ]
+
+                    ds_indexed = [
+                        ds[var].transpose("time", "rlat", "rlon")[i, ...]
+                        for i in indices
+                    ]
+
+                    bgen = xbatcher.BatchGenerator(
+                        ds=ds[var],
+                        input_dims={"time": cfg.loader.batch_size, "rlat": ds.rlat.size, "rlon": ds.rlon.size},
+                    )
+
+                    indices = np.arange(len(bgen))
+                    partial_paths = [
+                        f"{output_path}/{s}/{var}/{res}/{var}_{i}.pt"
+                        for i in range(len(indices))
+                    ]
+                    print(len(indices), ds.time.size)
+                    print(bgen[1].values.shape)
 
                     pool_tuple = zip(
                         indices,
                         partial_paths,
-                        ds[var].transpose("time", "rlat", "rlon"),
+                        bgen,
+                        # ds[var].transpose("time", "rlat", "rlon"),
+                        # ds_indexed,
                     )
                     if __name__ == "__main__":
                         progress_starmap(
                             parallel_loop,
                             pool_tuple,
-                            total=ds.time.size,
-                            n_cpu=16,
+                            total=len(indices),
+                            n_cpu=24,
                             chunk_size=1,
                         )
 

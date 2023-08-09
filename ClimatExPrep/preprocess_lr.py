@@ -48,7 +48,7 @@ def start(cfg) -> None:
             lr_path_list = cfg.vars[var].lr.path
             hr_grid_ref = cfg.hr_grid_ref_path
 
-            lr = load_grid(lr_path_list, cfg.engine, chunks=200)
+            lr = load_grid(lr_path_list, cfg.engine, chunks="auto")
             hr_ref = load_grid(hr_grid_ref, cfg.engine)
 
             logging.info("Homogenizing dataset keys...")
@@ -60,7 +60,6 @@ def start(cfg) -> None:
             logging.info("Matching longitudes...")
             lr = match_longitudes(lr) if cfg.vars[var].lr.is_west_negative else lr
             hr_ref = match_longitudes(hr_ref)
-
             logging.info("Slicing time dimension...")
             lr = slice_time(lr, cfg.time.full.start, cfg.time.full.end)
 
