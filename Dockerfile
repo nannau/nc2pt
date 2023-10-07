@@ -1,9 +1,13 @@
 FROM continuumio/miniconda3
 
-USER root
+WORKDIR /app
 
-COPY . ./
+# Create the environment:
+COPY environment.yml .
+RUN conda env create -f environment.yml
 
-RUN conda env update --file environment.yml --name base
-RUN conda install pip
-RUN pip install -e .
+# Make RUN commands use the new environment:
+SHELL ["conda", "run", "-n", "ClimatExPrep", "/bin/bash", "-c"]
+
+# The code to run when container is started:
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "ClimatExPrep", "/bin/bash", "-c"]
