@@ -1,4 +1,4 @@
-name: ClimatExPrep
+name: nc2pt_env
 dependencies:
   - conda-forge::xesmf
   - conda-forge::dask

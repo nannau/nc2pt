@@ -5,3 +5,4 @@ scipy
 dask
 zarr
 hydra-core
+torch

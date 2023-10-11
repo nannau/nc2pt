@@ -10,7 +10,7 @@ from datetime import timedelta
 
 import dask
 
-from ClimatExPrep.preprocess_helpers import (
+from nc2pt.preprocess_helpers import (
     load_grid,
     regrid_align,
     slice_time,

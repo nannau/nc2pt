@@ -1,0 +1,20 @@
+data:
+  data_dir: /kenes/downloaded-data/acannon/ERA5_NCAR-RDA_North_America/1hr
+  output_dir: /path/to/output/directory
+  variables:
+    - name: pr_1hr_ERA5_fc_RDA-025_1979010106-2019010106.nc
+      start_date: 20001001
+      end_date: 20151001
+    - name: tas_1hr_ERA5_an_RDA-025_1979010100-2018123123.nc
+      start_date: 20001001
+      end_date: 20151001
+    - name: uas_1hr_ERA5_an_RDA-025_1979010100-2018123123.nc
+      start_date: 20001001
+      end_date: 20151001
+    - name: vas_1hr_ERA5_an_RDA-025_1979010100-2018123123.nc
+      start_date: 20001001
+      end_date: 20151001
+  lat_min: 46
+  lat_max: 73
+  lon_min: 208
+  lon_max: 277

@@ -12,8 +12,6 @@ from joblib import Parallel, delayed
 from parallelbar import progress_imap, progress_starmap, progress_imapu
 
 from multiprocessing import set_start_method
-# set_start_method("spawn")
-
 from multiprocessing import get_context
 
 torch.manual_seed(0)

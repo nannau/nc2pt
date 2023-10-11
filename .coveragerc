@@ -1,7 +1,7 @@
 [run]
 omit =
-    ClimatExPrep/preprocess.py
-    ClimatExPrep/zarr_to_torch.py
-    ClimatExPrep/create_batches.py
-    ClimatExPrep/__init__.py
-    ClimatExPrep/tests/__init__.py
+    src/preprocess.py
+    src/zarr_to_torch.py
+    src/create_batches.py
+    src/__init__.py
+    src/tests/__init__.py
