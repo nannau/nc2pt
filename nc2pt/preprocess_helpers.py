@@ -1,19 +1,22 @@
+import logging
+import glob
+from typing import Tuple
+from datetime import datetime
+
 import xarray as xr
 import xesmf as xe
-import pandas as pd
-
-import logging
-from datetime import datetime
-from typing import Tuple
-import glob
 import numpy as np
 
 
-class MissingKeys(Exception):
+class MultipleKeys(Exception):
+    """Raised when a variable has multiple keys in the dataset."""
+
     pass
 
 
-class MultipleKeys(Exception):
+class MissingKey(Exception):
+    """Raised when a variable is missing from the dataset."""
+
     pass
 
 
@@ -33,13 +36,9 @@ def regrid_align(ds: xr.Dataset, grid: xr.Dataset) -> xr.Dataset:
         Dataset regridded and aligned to the given grid.
     """
 
-    # Regrid to the given grid.
     regridder = xe.Regridder(ds, grid, "bilinear")
     ds = regridder(ds)
     return ds
-    # ds.interp_like(grid)
-    # return ds.interp(coords={"lat": grid.lat, "lon": grid.lon}, method="linear")
-    # return
 
 
 def load_grid(path: str, engine: str = "netcdf4", chunks: int = 250) -> xr.Dataset:
@@ -195,37 +194,49 @@ def coarsen_lr(ds, scale_factor):
 
 
 def homogenize_names(ds: xr.Dataset, keymaps: dict, key_attr: str) -> xr.Dataset:
-    """Homogenize the names of the variables in the dataset.
+    """Homogenize variable names in the dataset based on a key mapping.
 
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset to homogenize the names of.
-    var_info : dict
-        Dictionary containing the variable names.
+    1. If the variable name is not in the dataset but has one and only one
+    alternative name in the dataset, it renames the variable to match the
+    alternative name.
+    2. If the variable name is not in the dataset but has multiple alternative
+    names in the dataset, it raises a MultipleKeys exception.
+    3. If the variable name is not in the dataset and doesn't have an
+    alternative name, it checks if it has specific flags in the keymaps dictionary (e.g., "hr_only" or "lr_only"). If these flags are present and set to True, it continues to the next variable name; otherwise, it continues to the next variable name.
 
-    Returns
-    -------
-    ds : xarray.Dataset
-        Dataset with homogenized variable names.
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            Dataset to homogenize variable names.
+        keymaps : dict
+            Dictionary containing variable name mappings.
+        key_attr : str
+            Attribute in the dataset containing variable names.
+
+        Returns
+        -------
+        ds : xarray.Dataset
+            Dataset with homogenized variable names.
     """
     keys = getattr(ds, key_attr)
+
     for name in keymaps:
         keymatch = [i for i in keymaps[name]["alternative_names"] if i in keys]
+
         if name not in keys:
-            # Check if it is listed as an alternative name.
+            # Check if it is listed as an alternative name and rename it.
             if len(keymatch) == 1:
-                ds = ds.rename({keymatch[0]: name})
-                logging.info(f"Renamed {keymatch[0]} to {name}")
+                new_name = keymatch[0]
+                ds = ds.rename({new_name: name})
+                logging.info(f"Renamed {new_name} to {name}")
             elif len(keymatch) > 1:
                 raise MultipleKeys(f"{name} has multiple alternatives in dataset.")
             # Check if the keyname is only in one of the datasets
-            elif "hr_only" in keymaps[name] and keymaps[name]["hr_only"]:
-                continue
-            elif "lr_only" in keymaps[name] and keymaps[name]["lr_only"]:
+            elif keymaps[name].get("hr_only") or keymaps[name].get("lr_only"):
                 continue
             else:
-                continue
+                continue  # If none of the above conditions are met, skip this name.
+
     return ds
 
 
@@ -250,16 +261,15 @@ def compute_standardization(
         Dataset with standardized statistics.
     """
     logging.info("Computing mean and standard deviation...")
-    if precomputed is not None:
-        mean = precomputed[var].attrs["mean"]
-        std = precomputed[var].attrs["std"]
-
-    else:
+    if precomputed:
         logging.info("Calculation mean...")
         mean = ds[var].mean().compute()
         logging.info("Calculation std...")
         std = ds[var].std().compute()
-    
+    else:
+        mean = precomputed[var].attrs["mean"]
+        std = precomputed[var].attrs["std"]
+
     logging.info("Applying function...")
     ds[var] = xr.apply_ufunc(
         standardize,
@@ -299,6 +309,7 @@ def unit_change(x):
 
 def log_transform(x):
     return np.log10(x + 1)
+
 
 def maxnorm(x, max):
     return x / max
