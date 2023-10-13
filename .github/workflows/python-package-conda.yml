@@ -24,7 +24,6 @@ jobs:
           conda env update --file environment.yml --name base
           conda install pip
           pip install -e .
-          # pip install -r requirements.txt
       - name: Lint with flake8
         run: |
           conda install flake8
@@ -35,11 +34,11 @@ jobs:
       - name: Test with pytest
         run: |
           conda install pytest
-          pytest ClimatExPrep/tests/
+          pytest nc2pt/tests/
       - name: Generate coverage reports
         run: |
           conda install pytest-cov
-          pytest --cov-config=.coveragerc --cov=ClimatExPrep --cov-report=xml ClimatExPrep/tests/
+          pytest --cov-config=.coveragerc --cov=nc2pt --cov-report=xml nc2pt/tests/
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
