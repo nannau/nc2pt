@@ -48,7 +48,7 @@ def main(cfg) -> None:
 
                 partial_paths = [
                     f"{output_path}/{s}/{var}/{res}/{var}"
-                    for i in range(len(indices))
+                    for _ in range(len(indices))
                 ]
 
                 output_path = [
