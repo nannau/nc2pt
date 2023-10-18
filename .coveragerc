@@ -1,7 +1,4 @@
 [run]
 omit =
-    src/preprocess.py
-    src/zarr_to_torch.py
-    src/create_batches.py
-    src/__init__.py
-    src/tests/__init__.py
+    nc2pt/__init__.py
+    nc2pt/tests/__init__.py
