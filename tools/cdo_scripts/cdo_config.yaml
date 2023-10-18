@@ -1,16 +1,19 @@
 data_dir: /home/nannau/ERA5_NCAR-RDA_North_America/1hr/
 output_dir: /home/nannau/ERA5_NCAR-RDA_North_America/proc
 variables:
-  - name: pr_1hr_ERA5_fc_RDA-025_1979010106-2019010106.nc
-    start_date: 20001001
-    end_date: 20151001
-  - name: tas_1hr_ERA5_an_RDA-025_1979010100-2018123123.nc
-    start_date: 20001001
-    end_date: 20151001
-  - name: uas_1hr_ERA5_an_RDA-025_1979010100-2018123123.nc
-    start_date: 20001001
-    end_date: 20151001
-  - name: vas_1hr_ERA5_an_RDA-025_1979010100-2018123123.nc
+  # - name: pr_1hr_ERA5_fc_RDA-025_1979010106-2019010106.nc
+  #   start_date: 20001001
+  #   end_date: 20151001
+  # - name: tas_1hr_ERA5_an_RDA-025_1979010100-2018123123.nc
+  #   start_date: 20001001
+  #   end_date: 20151001
+  # - name: uas_1hr_ERA5_an_RDA-025_1979010100-2018123123.nc
+  #   start_date: 20001001
+  #   end_date: 20151001
+  # - name: vas_1hr_ERA5_an_RDA-025_1979010100-2018123123.nc
+  #   start_date: 20001001
+  #   end_date: 20151001
+  - name: huss_1hr_ERA5_an_RDA-025_1979010100-2018123123.nc
     start_date: 20001001
     end_date: 20151001
 lat_min: 46

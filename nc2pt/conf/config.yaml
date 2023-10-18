@@ -8,125 +8,137 @@
 # dataset respectively with hr_only or lr_only: true
 # The same logic above applies for the dimensions, dims, and coordinates, coords.
 
-data:
-  _target_: nc2pt.data.ClimateData
-  output_path: /home/nannau/data/proc/
-  models:
-    hr:
-      _target_: nc2pt.data.ClimateModel
-      info: "High Resolution USask WRF, Western Canada"
-      vars:
-        precipitation:
-          __target__: nc2pt.data.ClimateVariable
-          varname: "pr"
-          alternative_names: ["PREC"]
-          path: /home/nannau/climatex/data/data/hr/PREC/*.nc
-          is_west_negative: true
-        zonal_wind:
-          __target__: nc2pt.data.ClimateVariable
-          varname: "uas"
-          alternative_names: ["U10", "u10", "uas"]
-          path: /home/nannau/climatex/data/data/hr/U10/*.nc
-          is_west_negative: true
-        relative_humidity:
-          __target__: nc2pt.data.ClimateVariable
-          varname: "Q2"
-          alternative_names: ["hurs", "huss", "Q2", "q2"]
-          path: /home/nannau/climatex/data/data/hr/Q2/*.nc
-          is_west_negative: true
-        meridional_wind:
-          __target__: nc2pt.data.ClimateVariable
-          varname: "vas"
-          alternative_names: ["V10", "v10", "vas"]
-          path: /home/nannau/climatex/data/data/hr/V10/*.nc
-          is_west_negative: true
-        temperature:
-          __target__: nc2pt.data.ClimateVariable
-          varname: "tas"
-          alternative_names: ["T2", "surface temperature"]
-          path: /home/nannau/climatex/data/data/hr/T2/*.nc
-          is_west_negative: true
+# This defines the pipeline and parameters. Each config defined by a
+# __target__ is loaded as a dataclass in climatedata.py with some inheritance.
 
-    lr:
-      _target_: nc2pt.data.ClimateModel
-      info: "Low resolution ERA5, Western Canada"
-      vars:
-        precipitation:
-          __target__: nc2pt.data.ClimateVariable
-          varname: "pr"
-          alternative_names: ["PREC"]
-          path: /home/nannau/climatex/data/2021/pr_cropped_renamed.nc
-          is_west_negative: false
-          transform:
-            - "x * 3600"
-            - "np.log10(x + 1)"
-        zonal_wind:
-          __target__: nc2pt.data.ClimateVariable
-          varname: "uas"
-          alternative_names: ["U10", "u10", "uas"]
-          path: /home/nannau/climatex/data/2021/uas_cropped_2021.nc
-          is_west_negative: false
-        relative_humidity:
-          __target__: nc2pt.data.ClimateVariable
-          varname: "Q2"
-          alternative_names: ["hurs", "huss", "Q2", "q2"]
-          path: /home/nannau/climatex/data/2021/huss_cropped_2021.nc
-          is_west_negative: false
-        meridional_wind:
-          __target__: nc2pt.data.ClimateVariable
-          varname: "vas"
-          alternative_names: ["V10", "v10", "vas"]
-          path: /home/nannau/climatex/data/2021/vas_cropped_2021.nc
-          is_west_negative: false
-        temperature:
-          __target__: nc2pt.data.ClimateVariable
-          varname: "tas"
-          alternative_names: ["T2", "surface temperature"]
-          path: /home/nannau/climatex/data/2021/tas_cropped_2021.nc
-          is_west_negative: false
-        hr_reference_field:
-          __target__: nc2pt.data.ClimateVariable
-          varname: "HR Reference Field"
-          alternative_names: ["T2"]
-          path: /home/nannau/nc2pt/data/hr_ref.nc
-          is_west_negative: true
-      vars:
-        pr:
-          alternative_names: ["PREC"]
-          path: /home/nannau/climatex/data/2021/pr_cropped_renamed.nc
-          is_west_negative: false
-        uas:
-          alternative_names: ["U10", "u10", "uas"]
-          path: /home/nannau/climatex/data/2021/uas_cropped_2021.nc
-          is_west_negative: false
-        Q2:
-          alternative_names: ["hurs", "huss", "Q2", "q2"]
-          path: /home/nannau/climatex/data/2021/huss_cropped_2021.nc
-          is_west_negative: false
-        vas:
-          alternative_names: ["V10", "v10", "vas"]
-          path: /home/nannau/climatex/data/2021/vas_cropped_2021.nc
-          is_west_negative: false
-        tas:
-          alternative_names: ["T2", "surface temperature"]
-          path: /home/nannau/climatex/data/2021/tas_cropped_2021.nc
-          is_west_negative: false
+_target_: nc2pt.climatedata.ClimateData # Iniatlizes ClimateData dataclass object
+output_path: /home/nannau/data/proc/
+climate_models:
+  # This lists the models 
+  - _target_: nc2pt.climatedata.ClimateModel
+    name: hr
+    info: "High Resolution USask WRF, Western Canada"
+    climate_variables: # Provides a list of ClimateVariable dataclass objects to initialize
+      - __target__: nc2pt.climatedata.ClimateVariable
+        name: "pr"
+        alternative_names: ["PREC"]
+        path: /home/nannau/USask-WRF-WCA/fire_vars/PREC/*.nc
+        is_west_negative: true
+        invariant: false
+        transform: null
 
-  dims:
-    time:
-      alternative_names: ["forecast_initial_time", "Time", "Times", "times"]
-    rlat:
-      alternative_names: ["rotated_latitude"]
-      hr_only: true
-    rlon:
-      alternative_names: ["rotated_longitude"]
-      hr_only: true
-  coords:
-    lat:
-      alternative_names: ["latitude", "Lat", "Latitude"]
-    lon:
-      alternative_names: ["longitude", "Long", "Lon", "Longitude"]
+      - __target__: nc2pt.climatedata.ClimateVariable
+        name: "uas"
+        alternative_names: ["U10", "u10", "uas"]
+        path: /home/nannau/USask-WRF-WCA/fire_vars/U10/*.nc
+        is_west_negative: true
+        invariant: false
+        transform: null
 
+      - __target__: nc2pt.climatedata.ClimateVariable
+        name: "Q2"
+        alternative_names: ["hurs", "huss", "Q2", "q2"]
+        path: /home/nannau/USask-WRF-WCA/fire_vars/Q2/*.nc
+        is_west_negative: true
+        invariant: false
+        transform: null
+
+      - __target__: nc2pt.climatedata.ClimateVariable
+        name: "vas"
+        alternative_names: ["V10", "v10", "vas"]
+        path: /home/nannau/USask-WRF-WCA/fire_vars/V10/*.nc
+        is_west_negative: true
+        invariant: false
+        transform: null
+
+      - __target__: nc2pt.climatedata.ClimateVariable
+        name: "tas"
+        alternative_names: ["T2", "surface temperature"]
+        path: /home/nannau/USask-WRF-WCA/fire_vars/T2/*.nc
+        is_west_negative: true
+        invariant: false
+        transform: null
+
+  - _target_: nc2pt.climatedata.ClimateModel
+    info: "Low resolution ERA5, Western Canada"
+    name: lr
+    hr_ref: # Reference field to interpolate to. Will need to provide new file if not using USask WRF
+      __target__: nc2pt.climatedata.ClimateVariable
+      name: "hr_ref"
+      alternative_names: ["T2"]
+      path: /home/nannau/nc2pt/nc2pt/data/hr_ref.nc
+      is_west_negative: true
+
+    climate_variables:
+      - __target__: nc2pt.climatedata.ClimateVariable
+        name: "uas"
+        alternative_names: ["U10", "u10", "uas"]
+        path: /home/nannau/ERA5_NCAR-RDA_North_America/proc/uas_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
+        is_west_negative: false
+        invariant: false
+        transform: null
+
+      - __target__: nc2pt.climatedata.ClimateVariable
+        name: "pr"
+        alternative_names: ["PREC"]
+        path: /home/nannau/ERA5_NCAR-RDA_North_America/proc/pr_1hr_ERA5_fc_RDA-025_1979010106-2019010106_time_sliced_cropped_merged_forecast_time.nc
+        is_west_negative: false
+        invariant: false
+        transform:
+          - "x * 3600"
+          - "np.log10(x + 1)"
+
+      - __target__: nc2pt.climatedata.ClimateVariable
+        name: "Q2"
+        alternative_names: ["hurs", "huss", "Q2", "q2"]
+        path: /home/nannau/ERA5_NCAR-RDA_North_America/proc/huss_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
+        is_west_negative: false
+        invariant: false
+        transform: null
+
+      - __target__: nc2pt.climatedata.ClimateVariable
+        name: "vas"
+        alternative_names: ["V10", "v10", "vas"]
+        path: /home/nannau/ERA5_NCAR-RDA_North_America/proc/vas_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
+        is_west_negative: false
+        invariant: false
+        transform: null
+
+      - __target__: nc2pt.climatedata.ClimateVariable
+        name: "tas"
+        alternative_names: ["T2", "surface temperature"]
+        path: /home/nannau/ERA5_NCAR-RDA_North_America/proc/tas_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
+        is_west_negative: false
+        invariant: false
+        transform: null
+
+dims: # Defines the dimensions of the dataset and lists them to be initialized as ClimateDimension objects
+  - __target__: nc2pt.climatedata.ClimateDimension
+    name: time
+    alternative_names: ["forecast_initial_time", "Time", "Times", "times"]
+    chunksize: 100
+  - __target__: nc2pt.climatedata.ClimateDimension
+    name: rlat
+    alternative_names: ["rotated_latitude"]
+    hr_only: true
+    chunksize: -1
+  - __target__: nc2pt.climatedata.ClimateDimension
+    name: rlon
+    alternative_names: ["rotated_longitude"]
+    hr_only: true
+    chunksize: -1
+
+coords:
+  - __target__: nc2pt.climatedata.ClimateDimension
+    name: lat
+    alternative_names: ["latitude", "Lat", "Latitude"]
+    chunksize: -1
+  - __target__: nc2pt.climatedata.ClimateDimension
+    name: lon
+    alternative_names: ["longitude", "Long", "Lon", "Longitude"]
+    chunksize: -1
+
+select:
   # Time indexing for subsets
   time:
     # Crop to the dataset with the shortest run
@@ -149,186 +161,19 @@ data:
       first_index: 20
       last_index: 532
 
+
+
+# dask client parameters
+compute:
   # xarray netcdf engine
   engine: h5netcdf
-  randomize: true
+  dask_dashboard_address: 8787
+  chunks:
+    time: auto
+    rlat: -1
+    rlon: -1
 
-# dask client parameters
-compute:
-  threads_per_worker: 24
-  memory_limit: "60GB"
-  dak_dashboard_address: 8787
-
-# define torch
-loader:
-  batch_size: 12
-  randomize: true
-  seed: 0
-
-
-vars:
-  # pr:
-  #   hr:
-  #     path: /home/nannau/climatex/data/data/hr/PREC/*.nc
-  #     is_west_negative: true
-  #   lr:
-  #     path: /home/nannau/climatex/data/2021/pr_cropped_renamed.nc
-  #     is_west_negative: false
-  #   output_path: /home/nannau/climatex/data/2021/
-  #   alternative_names: ["PREC"]
-  #   standardize: true
-
-  # uas:
-  #   hr:
-  #     path: //home/nannau/climatex/data/data/hr/U10/*.nc
-  #     is_west_negative: true
-  #   lr:
-  #     path: /home/nannau/climatex/data/2021/uas_cropped_2021.nc
-  #     is_west_negative: false
-  #   output_path: /home/nannau/climatex/data/2021/
-  #   alternative_names: ["U10", "u10", "uas"]
-  #   standardize: true
-
-  # Q2:
-  #   hr:
-  #     path: //home/nannau/climatex/data/data/hr/Q2/*.nc
-  #     is_west_negative: true
-  #   lr:
-  #     path: /home/nannau/climatex/data/2021/huss_cropped_2021.nc
-  #     is_west_negative: false
-  #   output_path: /home/nannau/climatex/data/2021/
-  #   alternative_names: ["hurs", "huss", "Q2", "q2"]
-  #   standardize: true
-
-  ps:
-    hr:
-      path: /home/nannau/climatex/data/PSFC/*.nc
-      is_west_negative: true
-    lr:
-      path: /home/nannau/climatex/data/2021/huss_cropped_2021.nc
-      is_west_negative: false
-    output_path: /home/nannau/climatex/data/2021/
-    alternative_names: ["ps", "PSFC", "huss", "Q2", "q2"]
-    standardize: true
-
-
-  # vas:
-  #   hr:
-  #     path: /home/nannau/climatex/data/data/hr/V10/*.nc
-  #     is_west_negative: true
-  #   lr:
-  #     path: /home/nannau/climatex/data/2021/vas_cropped_2021.nc
-  #     is_west_negative: false
-  #   output_path: /home/nannau/climatex/data/2021/
-  #   alternative_names: ["V10", "v10", "vas"]
-  #   standardize: true
-
-  # tas:
-  #   hr:
-  #     path: /home/nannau/climatex/data/data/hr/T2/*.nc
-  #     is_west_negative: true
-  #   lr:
-  #     path: /home/nannau/climatex/data/2021/tas_cropped_2021.nc
-  #     is_west_negative: false
-  #   output_path: /home/nannau/climatex/data/2021/
-  #   alternative_names: ["T2", "surface temperature"]
-  #   standardize: true
-
-
-
-  # uas:
-  #   hr:
-  #     path: //home/nannau/climatex/data/fire_vars/hr/U10/*.nc
-  #     is_west_negative: true
-  #   lr:
-  #     path: /home/nannau/climatex/data/fire_vars/lr/uas_sliced_cropped.nc
-  #     is_west_negative: false
-  #   output_path: /home/nannau/climatex/data/fire_vars/proc/
-  #   alternative_names: ["U10", "u10", "uas"]
-  #   standardize: true
-
-  # Q2:
-  #   hr:
-  #     path: //home/nannau/climatex/data/fire_vars/hr/Q2/*.nc
-  #     is_west_negative: true
-  #   lr:
-  #     path: /home/nannau/climatex/data/fire_vars/lr/huss_sliced_cropped.nc
-  #     is_west_negative: false
-  #   output_path: /home/nannau/climatex/data/fire_vars/proc/
-  #   alternative_names: ["huss", "Q2", "q2"]
-  #   standardize: true
-
-  # vas:
-  #   hr:
-  #     path: /home/nannau/climatex/data/fire_vars/hr/V10/*.nc
-  #     is_west_negative: true
-  #   lr:
-  #     path: /home/nannau/climatex/data/fire_vars/lr/vas_sliced_cropped.nc
-  #     is_west_negative: false
-  #   output_path: /home/nannau/climatex/data/fire_vars/proc/
-  #   alternative_names: ["V10", "v10", "vas"]
-  #   standardize: true
-
-  # tas:
-  #   hr:
-  #     path: /home/nannau/climatex/data/fire_vars/hr/T2/*.nc
-  #     is_west_negative: true
-  #   lr:
-  #     path: /home/nannau/climatex/data/fire_vars/lr/tas_sliced_cropped.nc
-  #     is_west_negative: false
-  #   output_path: /home/nannau/climatex/data/fire_vars/proc/
-  #   alternative_names: ["T2", "surface temperature"]
-  #   standardize: true
-
-dims:
-  time:
-    alternative_names: ["forecast_initial_time", "Time", "Times", "times"]
-  rlat:
-    alternative_names: ["rotated_latitude"]
-    hr_only: true
-  rlon:
-    alternative_names: ["rotated_longitude"]
-    hr_only: true
-coords:
-  lat:
-    alternative_names: ["latitude", "Lat", "Latitude"]
-  lon:
-    alternative_names: ["longitude", "Long", "Lon", "Longitude"]
-
-# Time indexing for subsets
-time:
-  # Crop to the dataset with the shortest run
-  # this defines the full dataset from which to subset
-  full:
-    start: "20001001T06:00:00"
-    end: "20250928T12:00:00"
-
-  # use this to select which years to reserve for testing
-  # the remaining years in full will be used for training
-  test_years: [2000, 2009, 2014]
-
-# sets the scale factor and index slices of the rotated coordinates
-spatial:
-  scale_factor: 8
-  x:
-    first_index: 110
-    last_index: 622
-  y:
-    first_index: 20
-    last_index: 532
-
-# xarray netcdf engine
-engine: h5netcdf
-steps_per_file: 32
-randomize: true
-
-# dask client parameters
-compute:
-  threads_per_worker: 24
-  memory_limit: "60GB"
-  dashboard_address: 8787
-
-# define torch
+# for tools scripts
 loader:
   batch_size: 12
   randomize: true

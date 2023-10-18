@@ -38,26 +38,26 @@ def main(cfg):
 
         logging.info(f"Executing sellonlatbox command: {sellonlatbox_command}")
 
-        try:
-            # Execute the sellonlatbox command using subprocess
-            subprocess.run(sellonlatbox_command, shell=True, check=True)
-            logging.info("sellonlatbox completed!")
+        # try:
+        # Execute the sellonlatbox command using subprocess
+        subprocess.run(sellonlatbox_command, shell=True, check=True)
+        logging.info("sellonlatbox completed!")
 
-            # Build the CDO command for time slicing
-            slice_time_command = f"cdo seldate,{variable.start_date},{variable.end_date} {intermediate_file} {output_file}"
+        # Build the CDO command for time slicing
+        slice_time_command = f"cdo seldate,{variable.start_date},{variable.end_date} {intermediate_file} {output_file}"
 
-            logging.info(f"Executing time slicing command: {slice_time_command}")
+        logging.info(f"Executing time slicing command: {slice_time_command}")
 
-            # Execute the time slicing command using subprocess
-            subprocess.run(slice_time_command, shell=True, check=True)
-            logging.info("Time slicing completed!")
+        # Execute the time slicing command using subprocess
+        subprocess.run(slice_time_command, shell=True, check=True)
+        logging.info("Time slicing completed!")
 
-            # Delete the intermediate file
-            os.remove(intermediate_file)
-            logging.info("Intermediate file deleted!")
+        # Delete the intermediate file
+        os.remove(intermediate_file)
+        logging.info("Intermediate file deleted!")
 
-        except subprocess.CalledProcessError as e:
-            logging.error(f"Error: {e}")
+        # except subprocess.CalledProcessError as e:
+        #     logging.error(f"Error: {e}")
 
 
 if __name__ == "__main__":
