@@ -50,7 +50,7 @@ def loop_over_variables(climate_data, model, var, s):
         )
 
         progress_starmap(
-            parallel_loop, pool_tuple, total=ds.time.size, n_cpu=16, chunk_size=1
+            parallel_loop, pool_tuple, total=ds.time.size, n_cpu=24, chunk_size=1
         )
 
 

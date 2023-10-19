@@ -14,3 +14,11 @@ where = [".", "nc2pt"]  # list of folders that contain the packages (["."] by de
 include = ["*"]  # package names should match these glob patterns (["*"] by default)
 exclude = ["nc2pt.tests*"]  # exclude packages matching these glob patterns (empty by default)
 namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
+
+[tool.pytest.ini_options]
+addopts = "--cov --cov-report term-missing"
+
+
+[tool.ruff]
+# Decrease the maximum line length to 79 characters.
+line-length = 120

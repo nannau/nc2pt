@@ -1,8 +1,10 @@
 import logging
+from typing import Dict
+
+import pandas as pd
 import xarray as xr
 import xesmf as xe
-import xarray as xr
-from typing import Dict
+
 from nc2pt.climatedata import ClimateData, ClimateModel
 
 
@@ -23,6 +25,13 @@ def slice_time(ds: xr.Dataset, start: str, end: str) -> xr.Dataset:
     ds : xarray.Dataset
         Sliced dataset.
     """
+    # Check that end is not before start
+    end = pd.to_datetime(end)
+    start = pd.to_datetime(start)
+
+    if end < start:
+        raise ValueError("End date is before start date.")
+
     ds = ds.sel(time=slice(start, end), drop=True)
 
     return ds
@@ -45,6 +54,18 @@ def train_test_split(ds: xr.Dataset, years: list) -> Dict[str, xr.Dataset]:
     test : xarray.Dataset
         Test dataset.
     """
+    # check that time is in the dataset
+    if "time" not in ds.dims:
+        raise ValueError("Time dimension not in dataset.")
+
+    # check that list of years is not empty
+    if not years:
+        raise ValueError("List of years is empty.")
+
+    # check if years is a list
+    if not isinstance(years, list):
+        raise ValueError("Years is not a list.") 
+
     train = ds.isel(time=~ds.time.dt.year.isin(years), drop=True)
     test = ds.isel(time=ds.time.dt.year.isin(years), drop=True)
 
@@ -141,6 +162,7 @@ def align_grid(ds: xr.DataArray, hr_ref: xr.DataArray, climdata: ClimateData) ->
     ds = ds.drop(["lat", "lon"])
 
     return ds
+
 
 def align_with_lr(ds, hr_ref, climdata) -> xr.Dataset:
     """Processes low resolution dataset for machine learning.
