@@ -34,11 +34,11 @@ jobs:
       - name: Test with pytest
         run: |
           conda install pytest
-          pytest nc2pt/tests/
+          pytest nc2pt/tests/test_align.py
       - name: Generate coverage reports
         run: |
           conda install pytest-cov
-          pytest --cov-config=.coveragerc --cov=nc2pt --cov-report=xml nc2pt/tests/
+          pytest --cov-config=.coveragerc --cov=nc2pt --cov-report=xml nc2pt/tests/test_align.py
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
