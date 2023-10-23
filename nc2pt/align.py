@@ -54,9 +54,6 @@ def train_test_split(ds: xr.Dataset, years: list) -> Dict[str, xr.Dataset]:
     test : xarray.Dataset
         Test dataset.
     """
-    # check that time is in the dataset
-    if "time" not in ds.dims:
-        raise ValueError("Time dimension not in dataset.")
 
     # check that list of years is not empty
     if not years:
@@ -64,7 +61,7 @@ def train_test_split(ds: xr.Dataset, years: list) -> Dict[str, xr.Dataset]:
 
     # check if years is a list
     if not isinstance(years, list):
-        raise ValueError("Years is not a list.") 
+        raise ValueError("Years is not a list.")
 
     train = ds.isel(time=~ds.time.dt.year.isin(years), drop=True)
     test = ds.isel(time=ds.time.dt.year.isin(years), drop=True)
@@ -81,10 +78,10 @@ def crop_field(ds, scale_factor, x, y):
         Dataset to crop.
     scale_factor : int
         Scale factor of the dataset.
-    x : int
-        Size of the x dimension.
-    y : int
-        Size of the y dimension.
+    x : OmegaConf
+        Containing longitudinal spatial extent information from config.
+    y : OmegaConf
+        Containing latitudinal spatial extent information from config.
 
     Returns
     -------
@@ -129,13 +126,35 @@ def interpolate(ds: xr.Dataset, grid: xr.Dataset) -> xr.Dataset:
     ds : xarray.Dataset
         Dataset regridded and aligned to the given grid.
     """
+    # Check that inputs are xarray datasets
+    if not isinstance(ds, xr.Dataset) and not isinstance(ds, xr.DataArray):
+        raise ValueError("Input dataset is not an xarray dataset.")
+    if not isinstance(grid, xr.Dataset) and not isinstance(grid, xr.DataArray):
+        raise ValueError("Grid is not an xarray dataset.")
 
+    # Check that the grid has the correct dimensions
+    if "rlon" not in grid.dims or "rlat" not in grid.dims:
+        raise ValueError("rlon or rlat not in grid dims, check grid")
+    # Check that the dataset has the correct dimensions
+    if "lon" not in ds.coords:
+        raise ValueError("lon not in dataset dims, check dataset")
+    if "lat" not in ds.coords:
+        raise ValueError("lat not in dataset dims, check dataset")
+
+    if "lon" not in grid.coords:
+        raise ValueError("lon not in grid dims, check grid")
+    if "lat" not in grid.coords:
+        raise ValueError("lat not in grid dims, check grid")
+
+    # Check that the dataset has the correct variables
     regridder = xe.Regridder(ds, grid, "bilinear")
     ds = regridder(ds)
     return ds
 
 
-def align_grid(ds: xr.DataArray, hr_ref: xr.DataArray, climdata: ClimateData) -> xr.DataArray:
+def align_grid(
+    ds: xr.DataArray, hr_ref: xr.DataArray, climdata: ClimateData
+) -> xr.DataArray:
     """Processes low resolution dataset for machine learning.
 
     Regrids, aligns, crops, and coarsens the low resolution dataset for use in machine learning.
