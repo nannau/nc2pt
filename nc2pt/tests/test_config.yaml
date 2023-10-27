@@ -9,7 +9,7 @@
 # The same logic above applies for the dimensions, dims, and coordinates, coords.
 
 # This defines the pipeline and parameters. Each config defined by a
-# __target__ is loaded as a dataclass in climatedata.py with some inheritance.
+# _target_ is loaded as a dataclass in climatedata.py with some inheritance.
 
 _target_: nc2pt.climatedata.ClimateData # Iniatlizes ClimateData dataclass object
 output_path: test_data/output/
@@ -19,7 +19,7 @@ climate_models:
     name: hr
     info: "High Resolution USask WRF, Western Canada"
     climate_variables: # Provides a list of ClimateVariable dataclass objects to initialize
-      - __target__: nc2pt.climatedata.ClimateVariable
+      - _target_: nc2pt.climatedata.ClimateVariable
         name: "U10"
         alternative_names: ["u10", "uas"]
         path: test_data/hr/U10_hr_slice_for_testing.nc
@@ -27,7 +27,7 @@ climate_models:
         invariant: false
         transform: null
 
-      - __target__: nc2pt.climatedata.ClimateVariable
+      - _target_: nc2pt.climatedata.ClimateVariable
         name: "V10"
         alternative_names: ["v10", "vas"]
         path: test_data/hr/V10_hr_slice_for_testing.nc
@@ -39,14 +39,14 @@ climate_models:
     info: "Low resolution ERA5, Western Canada"
     name: lr
     hr_ref: # Reference field to interpolate to. Will need to provide new file if not using USask WRF
-      __target__: nc2pt.climatedata.ClimateVariable
+      _target_: nc2pt.climatedata.ClimateVariable
       name: "hr_ref"
       alternative_names: ["T2"]
       path: /home/nannau/nc2pt/nc2pt/data/hr_ref.nc
       is_west_negative: true
 
     climate_variables:
-      - __target__: nc2pt.climatedata.ClimateVariable
+      - _target_: nc2pt.climatedata.ClimateVariable
         name: "uas"
         alternative_names: ["U10", "u10", "uas"]
         path:   test_data/lr/uas_lr_slice_for_testing.nc
@@ -54,7 +54,7 @@ climate_models:
         invariant: false
         transform: null
 
-      - __target__: nc2pt.climatedata.ClimateVariable
+      - _target_: nc2pt.climatedata.ClimateVariable
         name: "vas"
         alternative_names: ["V10", "v10", "vas"]
         path:   test_data/lr/vas_lr_slice_for_testing.nc
@@ -62,7 +62,7 @@ climate_models:
         invariant: false
         transform: null
 
-      - __target__: nc2pt.climatedata.ClimateVariable
+      - _target_: nc2pt.climatedata.ClimateVariable
         name: "tas"
         alternative_names: ["T2", "surface temperature"]
         path:   test_data/lr/tas_lr_slice_for_testing.nc
@@ -71,27 +71,27 @@ climate_models:
         transform: null
 
 dims: # Defines the dimensions of the dataset and lists them to be initialized as ClimateDimension objects
-  - __target__: nc2pt.climatedata.ClimateDimension
+  - _target_: nc2pt.climatedata.ClimateDimension
     name: time
     alternative_names: ["forecast_initial_time", "Time", "Times", "times"]
     chunksize: 100
-  - __target__: nc2pt.climatedata.ClimateDimension
+  - _target_: nc2pt.climatedata.ClimateDimension
     name: rlat
     alternative_names: ["rotated_latitude"]
     hr_only: true
     chunksize: -1
-  - __target__: nc2pt.climatedata.ClimateDimension
+  - _target_: nc2pt.climatedata.ClimateDimension
     name: rlon
     alternative_names: ["rotated_longitude"]
     hr_only: true
     chunksize: -1
 
 coords:
-  - __target__: nc2pt.climatedata.ClimateDimension
+  - _target_: nc2pt.climatedata.ClimateDimension
     name: lat
     alternative_names: ["latitude", "Lat", "Latitude"]
     chunksize: -1
-  - __target__: nc2pt.climatedata.ClimateDimension
+  - _target_: nc2pt.climatedata.ClimateDimension
     name: lon
     alternative_names: ["longitude", "Long", "Lon", "Longitude"]
     chunksize: -1
