@@ -6,4 +6,3 @@ dependencies:
   - conda-forge::hydra-core
   - conda-forge::h5netcdf
   - pytorch::pytorch
-  - pip
