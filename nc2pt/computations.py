@@ -1,6 +1,5 @@
 import logging
 import xarray as xr
-import numpy as np
 from nc2pt.align import train_test_split
 
 
@@ -20,7 +19,10 @@ def user_defined_transform(ds, var) -> xr.Dataset:
         Dataset after transform has been applied.
     """
     for transform in var.transform:
-        func = lambda x: eval(transform)
+
+        def func(x):
+            return eval(transform)
+
         logging.info(f"Applying transform {transform} to {var.name}...")
         ds[var.name] = xr.apply_ufunc(func, ds[var.name], dask="parallelized").compute()
 

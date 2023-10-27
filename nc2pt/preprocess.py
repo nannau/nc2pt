@@ -1,6 +1,6 @@
 from nc2pt.metadata import configure_metadata
 from nc2pt.io import load_grid, write_to_zarr
-from nc2pt.align import align_with_lr, crop_field, slice_time, crop_field
+from nc2pt.align import align_with_lr, crop_field, slice_time
 from nc2pt.computations import split_and_standardize, user_defined_transform
 from nc2pt.climatedata import ClimateData, ClimateModel
 
@@ -14,7 +14,7 @@ from dask.distributed import Client
 import dask
 
 
-def preprocess_variables(model: ClimateModel , climdata: ClimateData) -> None:
+def preprocess_variables(model: ClimateModel, climdata: ClimateData) -> None:
     """Preprocesses climate variables from model data.
 
     Loads configured climate variables from file, aligns high/low resolution grids,
@@ -35,16 +35,8 @@ def preprocess_variables(model: ClimateModel , climdata: ClimateData) -> None:
         logging.info("Processing high resolution reference field...")
         hr_ref = configure_metadata_fn(hr_ref, instantiate(model.hr_ref))
         alignment_procedures |= {
-            "lr": partial(
-                align_with_lr,
-                hr_ref=hr_ref,
-                climdata=climdata
-            ),
-            "lr_invariant": partial(
-                align_with_lr,
-                hr_ref=hr_ref,
-                climdata=climdata
-            )
+            "lr": partial(align_with_lr, hr_ref=hr_ref, climdata=climdata),
+            "lr_invariant": partial(align_with_lr, hr_ref=hr_ref, climdata=climdata),
         }
 
     for climate_variable in model.climate_variables:
@@ -60,23 +52,27 @@ def preprocess_variables(model: ClimateModel , climdata: ClimateData) -> None:
         )
 
         ds = configure_metadata_fn(ds, climate_variable)
-        ds = slice_time(
-            ds, climdata.select.time.range.start, climdata.select.time.range.end
-        ) if climate_variable.invariant is False else ds
+        ds = (
+            slice_time(
+                ds, climdata.select.time.range.start, climdata.select.time.range.end
+            )
+            if climate_variable.invariant is False
+            else ds
+        )
 
         alignment_procedures |= {
             "hr": partial(
                 crop_field,
-                scale_factor = climdata.select.spatial.scale_factor,
-                x = climdata.select.spatial.x,
-                y = climdata.select.spatial.y,
+                scale_factor=climdata.select.spatial.scale_factor,
+                x=climdata.select.spatial.x,
+                y=climdata.select.spatial.y,
             ),
             "hr_invariant": partial(
                 crop_field,
-                scale_factor = climdata.select.spatial.scale_factor,
-                x = climdata.select.spatial.x,
-                y = climdata.select.spatial.y,
-            )
+                scale_factor=climdata.select.spatial.scale_factor,
+                x=climdata.select.spatial.x,
+                y=climdata.select.spatial.y,
+            ),
         }
 
         # This implies that it is a different grid or a lr dataset.

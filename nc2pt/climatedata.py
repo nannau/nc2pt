@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 import logging
-from typing import Any, Optional
+from typing import Optional
 
 
 @dataclass

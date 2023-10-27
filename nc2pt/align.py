@@ -5,7 +5,7 @@ import pandas as pd
 import xarray as xr
 import xesmf as xe
 
-from nc2pt.climatedata import ClimateData, ClimateModel
+from nc2pt.climatedata import ClimateData
 
 
 def slice_time(ds: xr.Dataset, start: str, end: str) -> xr.Dataset:
