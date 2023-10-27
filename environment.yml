@@ -5,4 +5,4 @@ dependencies:
   - conda-forge::netCDF4
   - conda-forge::hydra-core
   - conda-forge::h5netcdf
-  - pytorch::pytorch
+  # - pytorch::pytorch
