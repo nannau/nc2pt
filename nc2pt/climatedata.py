@@ -6,14 +6,15 @@ from typing import Optional
 @dataclass
 class ClimateDimension:
     name: str
-    alternative_name: list[str]
+    alternative_names: list[str]
+    hr_only: Optional[bool] = field(default=False)
     chunksize: Optional[int] = None
 
 
 @dataclass
 class ClimateVariable:
-    varname: str
-    alternative_name: str
+    name: str
+    alternative_names: list[str]
     path: str
     is_west_negative: bool
     transform: Optional[str] = field(default=None)
@@ -25,10 +26,10 @@ class ClimateVariable:
 @dataclass
 class ClimateModel:
     # These will come from instantiating the class with hydra.
-    info: str
     name: str
+    info: str
     climate_variables: list[ClimateVariable]
-    hr_ref: Optional[str] = None
+    hr_ref: Optional[ClimateVariable] = None
 
     def __post_init__(self):
         logging.info(f"Instantiated Model with information: {self.info}")
