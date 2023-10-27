@@ -12,7 +12,7 @@
 # _target_ is loaded as a dataclass in climatedata.py with some inheritance.
 
 _target_: nc2pt.climatedata.ClimateData # Iniatlizes ClimateData dataclass object
-output_path: test_data/output/
+output_path: nc2pt/tests/test_data/output/
 climate_models:
   # This lists the models 
   - _target_: nc2pt.climatedata.ClimateModel
@@ -22,7 +22,7 @@ climate_models:
       - _target_: nc2pt.climatedata.ClimateVariable
         name: "U10"
         alternative_names: ["u10", "uas"]
-        path: test_data/hr/U10_hr_slice_for_testing.nc
+        path: nc2pt/tests/test_data/hr/U10_hr_slice_for_testing.nc
         is_west_negative: true
         invariant: false
         transform: null
@@ -30,7 +30,7 @@ climate_models:
       - _target_: nc2pt.climatedata.ClimateVariable
         name: "V10"
         alternative_names: ["v10", "vas"]
-        path: test_data/hr/V10_hr_slice_for_testing.nc
+        path: nc2pt/tests/test_data/hr/V10_hr_slice_for_testing.nc
         is_west_negative: true
         invariant: false
         transform: null
@@ -49,7 +49,7 @@ climate_models:
       - _target_: nc2pt.climatedata.ClimateVariable
         name: "uas"
         alternative_names: ["U10", "u10", "uas"]
-        path:   test_data/lr/uas_lr_slice_for_testing.nc
+        path:   nc2pt/tests/test_data/lr/uas_lr_slice_for_testing.nc
         is_west_negative: false
         invariant: false
         transform: null
@@ -57,7 +57,7 @@ climate_models:
       - _target_: nc2pt.climatedata.ClimateVariable
         name: "vas"
         alternative_names: ["V10", "v10", "vas"]
-        path:   test_data/lr/vas_lr_slice_for_testing.nc
+        path:   nc2pt/tests/test_data/lr/vas_lr_slice_for_testing.nc
         is_west_negative: false
         invariant: false
         transform: null
@@ -65,7 +65,7 @@ climate_models:
       - _target_: nc2pt.climatedata.ClimateVariable
         name: "tas"
         alternative_names: ["T2", "surface temperature"]
-        path:   test_data/lr/tas_lr_slice_for_testing.nc
+        path:   nc2pt/tests/test_data/lr/tas_lr_slice_for_testing.nc
         is_west_negative: false
         invariant: false
         transform: null
