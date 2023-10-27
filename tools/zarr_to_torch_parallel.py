@@ -36,7 +36,7 @@ def loop_over_variables(climate_data, model, var, s):
     ) as ds:
         # Create parent dir if it doesn't exist for each variable
         make_dirs(output_path, s, var.name, model.name)
-        indices = np.arange(ds.time.size)
+        indices = np.arange(ds.time.size)[:1000]
 
         partial_paths = [
             f"{output_path}/{s}/{var.name}/{model.name}/{var.name}_{i}.pt"
@@ -50,7 +50,7 @@ def loop_over_variables(climate_data, model, var, s):
         )
 
         progress_starmap(
-            parallel_loop, pool_tuple, total=ds.time.size, n_cpu=24, chunk_size=1
+            parallel_loop, pool_tuple, total=ds.time[:1000].size, n_cpu=24, chunk_size=1
         )
 
 

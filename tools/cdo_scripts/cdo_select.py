@@ -13,7 +13,8 @@ def main(cfg):
     # Check if the 'cdo' command is available
     if shutil.which("cdo") is None:
         raise EnvironmentError(
-            "CDO (Climate Data Operators) is not installed or not in your system's PATH. Please install CDO and ensure it's accessible."
+            "CDO (Climate Data Operators) is not installed or not in your system's PATH."
+            "Please install CDO and ensure it's accessible."
         )
 
     for variable in cfg.variables:
@@ -34,7 +35,10 @@ def main(cfg):
         )
 
         # Build the CDO command for sellonlatbox
-        sellonlatbox_command = f"cdo -sellonlatbox,{cfg.lon_min},{cfg.lon_max},{cfg.lat_min},{cfg.lat_max} {input_file} {intermediate_file}"
+        cfg_box = f"{cfg.lon_min},{cfg.lon_max},{cfg.lat_min},{cfg.lat_max}"
+        sellonlatbox_command = (
+            f"cdo -sellonlatbox,{cfg_box} {input_file} {intermediate_file}"
+        )
 
         logging.info(f"Executing sellonlatbox command: {sellonlatbox_command}")
 

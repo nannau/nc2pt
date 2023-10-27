@@ -13,7 +13,8 @@ def main(cfg):
     # Check if the 'cdo' command is available
     if shutil.which("cdo") is None:
         raise EnvironmentError(
-            "CDO (Climate Data Operators) is not installed or not in your system's PATH. Please install CDO and ensure it's accessible."
+            "CDO (Climate Data Operators) is not installed or not in your system's PATH."
+            "Please install CDO and ensure it's accessible."
         )
 
     # Define the input file with the specified filename
@@ -47,7 +48,10 @@ def main(cfg):
         logging.info(f"Processing time level {k} completed!")
 
     # Merge the shifted time levels
-    merge_command = f"cdo -mergetime {output_prefix}*.nc_shift {cfg.output_dir}/pr_1hr_ERA5_fc_RDA-025_1979010106-2019010106_time_sliced_cropped_merged_forecast_time.nc"
+    pr_filename = "pr_1hr_ERA5_fc_RDA-025_1979010106-2019010106_time_sliced_cropped_merged_forecast_time.nc"
+    merge_command = (
+        f"cdo -mergetime {output_prefix}*.nc_shift {cfg.output_dir}/{pr_filename}"
+    )
     logging.info(f"Merging time levels: {merge_command}")
     subprocess.run(merge_command, shell=True, check=True)
     logging.info("Merging time levels completed!")
