@@ -22,7 +22,6 @@ jobs:
       - name: Install dependencies
         run: |
           conda update conda
-          conda update conda-build
           conda install -n base conda-libmamba-solver
           conda config --set solver libmamba
           conda env update --file environment.yml --name base
