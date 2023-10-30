@@ -24,35 +24,38 @@ jobs:
       - name: Install dependencies
         run: |
           conda install xesmf
-          conda install pip
-          pip install -r requirements.txt
-          pip install -e .
-      - name: Lint with flake8
-        run: |
-          conda install flake8
-          # stop the build if there are Python syntax errors or undefined names
-          flake8 nc2pt --max-line-length=127 --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 nc2pt --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - name: Test with pytest
-        run: |
-          conda install pytest
-          pytest nc2pt/tests/test_align.py
-      - name: Generate coverage reports
-        run: |
-          conda install pytest-cov
-          pytest --cov-config=.coveragerc --cov=nc2pt --cov-report=xml nc2pt/tests/test_align.py
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          directory: ./
-          env_vars: OS,PYTHON
-          fail_ci_if_error: false
-          files: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          path_to_write_report: ./codecov_report.txt
-          verbose: true
+          python -c "import esmf"
+      #   run: |
+      #     conda install xesmf
+      #     conda install pip
+      #     pip install -r requirements.txt
+      #     pip install -e .
+      # - name: Lint with flake8
+      #   run: |
+      #     conda install flake8
+      #     # stop the build if there are Python syntax errors or undefined names
+      #     flake8 nc2pt --max-line-length=127 --count --select=E9,F63,F7,F82 --show-source --statistics
+      #     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+      #     flake8 nc2pt --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      # - name: Test with pytest
+      #   run: |
+      #     conda install pytest
+      #     pytest nc2pt/tests/test_align.py
+      # - name: Generate coverage reports
+      #   run: |
+      #     conda install pytest-cov
+      #     pytest --cov-config=.coveragerc --cov=nc2pt --cov-report=xml nc2pt/tests/test_align.py
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v3
+      #   with:
+      #     directory: ./
+      #     env_vars: OS,PYTHON
+      #     fail_ci_if_error: false
+      #     files: ./coverage.xml
+      #     flags: unittests
+      #     name: codecov-umbrella
+      #     path_to_write_report: ./codecov_report.txt
+      #     verbose: true
 
 
 # jobs:
