@@ -23,7 +23,7 @@ jobs:
       - run: which python
       - name: Install dependencies
         run: |
-          conda install xesmf
+          conda install -c conda-forge xesmf
           python -c "import xesmf"
       #   run: |
       #     conda install xesmf
