@@ -25,6 +25,7 @@ jobs:
         run: |
           conda install -c conda-forge xesmf
           conda install -c conda-forge dask netCDF4
+          conda install -c conda-forge esmpy
 
       - name: Run import
         run: python -c "import xesmf"
