@@ -23,8 +23,11 @@ jobs:
       - run: which python
       - name: Install xesmf
         run: |
-          conda activate
+          conda create -n xesmf_env
+          conda activate xesmf_env
           conda install -c conda-forge xesmf
+          conda install -c conda-forge dask netCDF4
+
       - name: Run import
         run: python -c "import xesmf"
           # python -c "import xesmf"
