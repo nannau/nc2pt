@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           conda install xesmf
-          python -c "import esmf"
+          python -c "import xesmf"
       #   run: |
       #     conda install xesmf
       #     conda install pip
