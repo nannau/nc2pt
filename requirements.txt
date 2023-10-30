@@ -1,8 +1,5 @@
-xarray
-numpy
-h5netcdf
-scipy
 dask
-zarr
+netCDF4
 hydra-core
-torch
+h5netcdf
+pytorch
