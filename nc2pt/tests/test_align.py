@@ -1,5 +1,5 @@
 # A function that creates a xarray dataset with a time dimension from 2000 - 2005
-from typing import Any
+from typing import Any, Dict
 
 import numpy as np
 import pandas as pd
@@ -90,7 +90,7 @@ test_cases = [
 
 
 @pytest.mark.parametrize("case", test_cases, ids=[case["id"] for case in test_cases])
-def test_slice_time_behaviour(case: dict[str, Any]):
+def test_slice_time_behaviour(case: Dict[str, Any]):
     # Arrange
     start = case["start"]
     end = case["end"]
@@ -134,7 +134,7 @@ slice_time_count_cases = [
 @pytest.mark.parametrize(
     "case", slice_time_count_cases, ids=[case["id"] for case in slice_time_count_cases]
 )
-def test_slice_time_count(ds, case: dict[str, Any]):
+def test_slice_time_count(ds, case: Dict[str, Any]):
     start = case["start"]
     end = case["end"]
     total_hours = case["expected"]
@@ -159,7 +159,7 @@ train_test_split_cases = [
 @pytest.mark.parametrize(
     "case", train_test_split_cases, ids=[case["id"] for case in train_test_split_cases]
 )
-def test_train_test_split(case: dict[str, Any]):
+def test_train_test_split(case: Dict[str, Any]):
     # Arrange
     ds = xr.Dataset(
         {"var": (("time",), [1, 2, 3])},
@@ -237,7 +237,7 @@ crop_field_cases = [
 @pytest.mark.parametrize(
     "case", crop_field_cases, ids=[case["id"] for case in crop_field_cases]
 )
-def test_crop_field(case: dict[str, Any]):
+def test_crop_field(case: Dict[str, Any]):
     # Arrange
     ds = case["ds"]
     scale_factor = case["scale_factor"]
@@ -309,7 +309,7 @@ test_cases_interpolate = [
 @pytest.mark.parametrize(
     "case", test_cases_interpolate, ids=[case["id"] for case in test_cases_interpolate]
 )
-def test_interpolate_error_cases(case: dict[str, Any]):
+def test_interpolate_error_cases(case: Dict[str, Any]):
     # Act
     ds = case["ds"]
     grid = case["grid"]
@@ -340,7 +340,7 @@ test_cases_align_grid = [
 @pytest.mark.parametrize(
     "case", test_cases_align_grid, ids=[case["id"] for case in test_cases_align_grid]
 )
-def test_align_grid(case: dict[str, Any]):
+def test_align_grid(case: Dict[str, Any]):
     # Act
     ds = case["ds"]
     grid = case["grid"]
@@ -367,7 +367,7 @@ test_cases_align_with_lr = [
     test_cases_align_with_lr,
     ids=[case["id"] for case in test_cases_align_with_lr],
 )
-def test_align_with_lr(case: dict[str, Any]):
+def test_align_with_lr(case: Dict[str, Any]):
     # Act
     ds = case["ds"]
     grid = case["grid"]
