@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
 import logging
-from typing import Optional
+from typing import Optional, List
 
 
 @dataclass
 class ClimateDimension:
     name: str
-    alternative_names: list[str]
+    alternative_names: List[str]
     hr_only: Optional[bool] = field(default=False)
     chunksize: Optional[int] = None
 
@@ -14,7 +14,7 @@ class ClimateDimension:
 @dataclass
 class ClimateVariable:
     name: str
-    alternative_names: list[str]
+    alternative_names: List[str]
     path: str
     is_west_negative: bool
     transform: Optional[str] = field(default=None)
@@ -28,7 +28,7 @@ class ClimateModel:
     # These will come from instantiating the class with hydra.
     name: str
     info: str
-    climate_variables: list[ClimateVariable]
+    climate_variables: List[ClimateVariable]
     hr_ref: Optional[ClimateVariable] = None
 
     def __post_init__(self):
@@ -38,9 +38,9 @@ class ClimateModel:
 @dataclass
 class ClimateData:
     output_path: str
-    climate_models: list[ClimateModel]
-    dims: list[ClimateDimension]
-    coords: list[ClimateDimension]
+    climate_models: List[ClimateModel]
+    dims: List[ClimateDimension]
+    coords: List[ClimateDimension]
     select: dict
     compute: dict
     loader: dict
