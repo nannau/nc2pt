@@ -1,9 +1,10 @@
 import logging
 import xarray as xr
 from nc2pt.align import train_test_split
+from nc2pt.climatedata import ClimateVariable
 
 
-def user_defined_transform(ds, var) -> xr.Dataset:
+def user_defined_transform(ds: xr.Dataset, var: ClimateVariable) -> xr.Dataset:
     """Apply user defined transform to the dataset.
 
     Parameters
@@ -18,7 +19,20 @@ def user_defined_transform(ds, var) -> xr.Dataset:
     ds : xarray.Dataset
         Dataset after transform has been applied.
     """
+
+    if len(ds.data_vars) == 0 or len(var.transform) == 0:
+        logging.info("Dataset is empty, or no transforms -- skipping transform...")
+        return ds
+
+    if var.name not in ds:
+        raise KeyError(f"Variable {var.name} not in dataset.")
+
     for transform in var.transform:
+        try:
+            x = 1
+            eval(transform)
+        except SyntaxError:
+            raise SyntaxError(f"Invalid transform in config {transform}.")
 
         def func(x):
             return eval(transform)
