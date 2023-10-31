@@ -3,3 +3,4 @@ notebooks
 outputs
 coverage.xml
 .pytest_cache
+Dockerfile

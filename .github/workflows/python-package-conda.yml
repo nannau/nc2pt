@@ -1,45 +1,52 @@
+
 name: Python and Conda
 
 on: [push]
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ${{ matrix.os }}
     strategy:
-      max-parallel: 5
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        os: [ubuntu-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+    name: Python ${{ matrix.python-version }} example
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Setup conda
+        uses: s-weigand/setup-conda@v1
         with:
+          update-conda: false
           python-version: ${{ matrix.python-version }}
-      - name: Add conda to system path
+          conda-channels: anaconda, conda-forge
+      - run: conda --version
+      - run: which python
+      - name: Install
         run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
-      - name: Install dependencies
+          conda install -c conda-forge xesmf
+          conda install -c conda-forge pip
+      - name: Set ESMFMKFILE and install reqs
         run: |
-          conda env update --file environment.yml --name base
-          conda install pip
+          export ESMFMKFILE=/usr/share/miniconda/envs/__setup_conda/lib/esmf.mk
+          pip install -r requirements.txt
           pip install -e .
-          # pip install -r requirements.txt
       - name: Lint with flake8
         run: |
           conda install flake8
           # stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 nc2pt --max-line-length=127 --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          flake8 nc2pt --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Test with pytest
         run: |
           conda install pytest
-          pytest ClimatExPrep/tests/
+          export ESMFMKFILE=/usr/share/miniconda/envs/__setup_conda/lib/esmf.mk
+          pytest nc2pt/tests/test_align.py
       - name: Generate coverage reports
         run: |
           conda install pytest-cov
-          pytest --cov-config=.coveragerc --cov=ClimatExPrep --cov-report=xml ClimatExPrep/tests/
+          export ESMFMKFILE=/usr/share/miniconda/envs/__setup_conda/lib/esmf.mk
+          pytest --cov-config=.coveragerc --cov=nc2pt --cov-report=xml nc2pt/tests/test_align.py
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -51,3 +58,55 @@ jobs:
           name: codecov-umbrella
           path_to_write_report: ./codecov_report.txt
           verbose: true
+
+
+# jobs:
+#   build-linux:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       max-parallel: 5
+#       matrix:
+#         python-version: ["3.7", "3.8", "3.9", "3.10"]
+#     steps:
+#       - uses: actions/checkout@v3
+#       - name: Set up Python ${{ matrix.python-version }}
+#         uses: actions/setup-python@v4
+#         with:
+#           python-version: ${{ matrix.python-version }}
+#       - name: Add conda to system path
+#         run: |
+#           # $CONDA is an environment variable pointing to the root of the miniconda directory
+#           echo $CONDA/bin >> $GITHUB_PATH
+#       - name: Install dependencies
+#         run: |
+#           conda install -c conda-forge mamba
+#           mamba env create -f environment.yml
+#           mamba activate nc2pt_env
+#           mamba install pip
+#           pip install -e .
+#       - name: Lint with flake8
+#         run: |
+#           conda install flake8
+#           # stop the build if there are Python syntax errors or undefined names
+#           flake8 nc2pt --max-line-length=127 --count --select=E9,F63,F7,F82 --show-source --statistics
+#           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+#           flake8 nc2pt --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+#       - name: Test with pytest
+#         run: |
+#           conda install pytest
+#           pytest nc2pt/tests/test_align.py
+#       - name: Generate coverage reports
+#         run: |
+#           conda install pytest-cov
+#           pytest --cov-config=.coveragerc --cov=nc2pt --cov-report=xml nc2pt/tests/test_align.py
+#       - name: Upload coverage to Codecov
+#         uses: codecov/codecov-action@v3
+#         with:
+#           directory: ./
+#           env_vars: OS,PYTHON
+#           fail_ci_if_error: false
+#           files: ./coverage.xml
+#           flags: unittests
+#           name: codecov-umbrella
+#           path_to_write_report: ./codecov_report.txt
+#           verbose: true

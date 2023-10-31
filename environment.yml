@@ -1,4 +1,4 @@
-name: ClimatExPrep
+name: nc2pt_env
 dependencies:
   - conda-forge::xesmf
   - conda-forge::dask
@@ -6,4 +6,3 @@ dependencies:
   - conda-forge::hydra-core
   - conda-forge::h5netcdf
   - pytorch::pytorch
-  - pip
