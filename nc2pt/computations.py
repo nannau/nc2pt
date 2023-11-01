@@ -30,7 +30,7 @@ def user_defined_transform(ds: xr.Dataset, var: ClimateVariable) -> xr.Dataset:
     for transform in var.transform:
         try:
             x = 1
-            eval(transform)
+            eval(transform)  # x is implicitly a variable from the config
         except SyntaxError:
             raise SyntaxError(f"Invalid transform in config {transform}.")
 
