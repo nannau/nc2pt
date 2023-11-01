@@ -282,4 +282,7 @@ def test_split_and_standardize(case: Dict[str, Any]):
     # Assert
     assert np.isclose(
         result["test"]["var"].attrs["mean"], result["train"]["var"].attrs["mean"]
-    )
+    ), "Mean of train and test set are not equal."
+    assert np.isclose(
+        result["test"]["var"].attrs["std"], result["train"]["var"].attrs["std"]
+    ), "Std of train and test set are not equal."
