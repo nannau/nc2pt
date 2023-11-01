@@ -60,6 +60,8 @@ def standardize(x: xr.DataArray, mean: float, std: float) -> xr.DataArray:
     x : xarray.DataArray
         Standardized data.
     """
+    if std == 0:
+        raise ZeroDivisionError("Standard deviation is zero.")
     return (x - mean) / std
 
 
@@ -86,6 +88,13 @@ def compute_standardization(
         logging.info("Calculation std...")
         std = ds[varname].std().compute()
     else:
+        if (
+            "mean" not in precomputed[varname].attrs
+            or "std" not in precomputed[varname].attrs
+        ):
+            raise KeyError(
+                f"Precomputed dataset does not contain mean and std for variable {varname}."
+            )
         mean = precomputed[varname].attrs["mean"]
         std = precomputed[varname].attrs["std"]
 

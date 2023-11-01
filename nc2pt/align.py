@@ -6,6 +6,7 @@ import xarray as xr
 import xesmf as xe
 
 from nc2pt.climatedata import ClimateData
+import omegaconf
 
 
 def slice_time(ds: xr.Dataset, start: str, end: str) -> xr.Dataset:
@@ -60,7 +61,9 @@ def train_test_split(ds: xr.Dataset, years: list) -> Dict[str, xr.Dataset]:
         raise ValueError("List of years is empty.")
 
     # check if years is a list
-    if not isinstance(years, list):
+    if not isinstance(years, list) and not isinstance(
+        years, omegaconf.listconfig.ListConfig
+    ):
         raise ValueError("Years is not a list.")
 
     train = ds.isel(time=~ds.time.dt.year.isin(years), drop=True)
