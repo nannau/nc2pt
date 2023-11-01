@@ -1,4 +1,3 @@
-from omegaconf import OmegaConf
 import pytest
 import xarray as xr
 from nc2pt.computations import (
@@ -7,6 +6,7 @@ from nc2pt.computations import (
     compute_standardization,
     split_and_standardize,
 )
+
 from omegaconf import OmegaConf
 
 import numpy as np
