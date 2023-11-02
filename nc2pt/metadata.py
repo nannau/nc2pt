@@ -44,17 +44,17 @@ def configure_metadata(
         keys = getattr(ds, "dims")
 
         dim_or_coord_attrs = {
-            dim_or_coord.name
-            for dim_or_coord in climdata.dims + climdata.coords
+            dim_or_coord.name for dim_or_coord in climdata.dims + climdata.coords
         }
         ds_attrs = set(keys.keys())
 
         keys_to_remove = list(ds_attrs - dim_or_coord_attrs)
         logging.info(f"Dropping {keys_to_remove} from dataset.")
-
+        print(getattr(ds, "dims"), keys_to_remove, ds.attrs, ds)
         for k in keys_to_remove:
             if ds[k].size == 1:
-                ds = ds.squeeze(k).drop(k)
+                del ds.attrs[k]
+                # ds = ds.squeeze(k).drop(k)
 
     ds = rename_keys(ds, outcome_obj=var, ds_attr="data_vars")
     ds = match_longitudes(ds) if var.is_west_negative else ds

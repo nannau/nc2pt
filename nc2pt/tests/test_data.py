@@ -6,6 +6,7 @@ import xarray as xr
 from hydra.utils import instantiate
 
 from nc2pt.climatedata import ClimateData
+from nc2pt.io import load_grid
 
 
 @dataclass
@@ -22,7 +23,7 @@ class TestData:
 
     @property
     def hr_ref_dataset(self):
-        return xr.open_dataset(self.climate_models[1].hr_ref.path)
+        return load_grid(self.climate_models[1].hr_ref.path, engine="h5netcdf")
 
     @property
     def hr_dataset(self):
@@ -31,7 +32,7 @@ class TestData:
         ]
         var_paths = [v.path for v in climate_variables]
 
-        return xr.open_mfdataset(var_paths, combine="by_coords")
+        return load_grid(var_paths, engine="h5netcdf")
 
     @property
     def lr_dataset(self):
@@ -40,7 +41,7 @@ class TestData:
         ]
         var_paths = [v.path for v in climate_variables]
 
-        return xr.open_mfdataset(var_paths, combine="by_coords")
+        return load_grid(var_paths)
 
     @property
     def dummy_time_dataset(self):

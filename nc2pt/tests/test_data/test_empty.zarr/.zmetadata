@@ -1,0 +1,11 @@
+{
+    "metadata": {
+        ".zattrs": {
+            "history": "Created by /home/nannau/nc2pt/nc2pt/io.py on 2023-11-01 18:48:24.710189"
+        },
+        ".zgroup": {
+            "zarr_format": 2
+        }
+    },
+    "zarr_consolidated_format": 1
+}

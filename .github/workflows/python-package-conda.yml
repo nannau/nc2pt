@@ -41,12 +41,12 @@ jobs:
         run: |
           conda install pytest
           export ESMFMKFILE=/usr/share/miniconda/envs/__setup_conda/lib/esmf.mk
-          pytest nc2pt/tests/test_align.py
+          pytest nc2pt/tests/
       - name: Generate coverage reports
         run: |
           conda install pytest-cov
           export ESMFMKFILE=/usr/share/miniconda/envs/__setup_conda/lib/esmf.mk
-          pytest --cov-config=.coveragerc --cov=nc2pt --cov-report=xml nc2pt/tests/test_align.py
+          pytest --cov-config=.coveragerc --cov=nc2pt --cov-report=xml nc2pt/tests/
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:

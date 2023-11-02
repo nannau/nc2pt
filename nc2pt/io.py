@@ -1,6 +1,8 @@
 from datetime import datetime
 import xarray as xr
 
+from pathlib import Path
+
 
 def load_grid(path: str, engine: str = "netcdf4", chunks: int = 250) -> xr.Dataset:
     """Load the grid to regrid to.
@@ -16,7 +18,7 @@ def load_grid(path: str, engine: str = "netcdf4", chunks: int = 250) -> xr.Datas
         Grid to regrid to.
     """
 
-    if "*" in path:
+    if "*" in path or isinstance(path, list):
         with xr.open_mfdataset(path, engine=engine, parallel=True, chunks="auto") as ds:
             return ds
     else:
@@ -34,6 +36,7 @@ def write_to_zarr(ds: xr.Dataset, path: str) -> None:
     path : str
         Path to write the dataset to.
     """
+
     # See https://github.com/pydata/xarray/issues/5219
     ds = ds.assign_attrs(
         {
