@@ -81,7 +81,8 @@ def rename_keys(
     Renames variables in a dataset based on alternative names provided for a ClimateVariable or ClimateDimension.
 
     This function takes a dataset, a ClimateVariable or ClimateDimension object, and a dataset attribute name.
-    It checks if any of the alternative names for the ClimateVariable or ClimateDimension match keys in the dataset attribute.
+    It checks if any of the alternative names for the ClimateVariable or ClimateDimension match keys in the
+    dataset attribute.
     If there is exactly one match, it renames that key to the standard name in the ClimateVariable or ClimateDimension.
 
     Args:
@@ -123,7 +124,9 @@ def match_longitudes(ds: xr.Dataset) -> xr.Dataset:
         Dataset with longitudes in the range [-180, 180].
     """
     if ds.lon.min() > 0:
-        raise ValueError("Dataset longitudes are likely not in the range [-180, 180] which is the intention of this function. Check longitude units.")
-
+        raise ValueError(
+            "Dataset longitudes are likely not in the range [-180, 180]"
+            "which is the intention of this function. Check longitude units."
+        )
     ds = ds.assign_coords(lon=(ds.lon + 360))
     return ds
