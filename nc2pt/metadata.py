@@ -51,10 +51,12 @@ def configure_metadata(
         keys_to_remove = list(ds_attrs - dim_or_coord_attrs)
         logging.info(f"Dropping {keys_to_remove} from dataset.")
         print(getattr(ds, "dims"), keys_to_remove, ds.attrs, ds)
+
+        # assert 0
+
         for k in keys_to_remove:
             if ds[k].size == 1:
-                del ds.attrs[k]
-                # ds = ds.squeeze(k).drop(k)
+                ds = ds.squeeze(k).drop_vars(k)
 
     ds = rename_keys(ds, outcome_obj=var, ds_attr="data_vars")
     ds = match_longitudes(ds) if var.is_west_negative else ds
@@ -120,5 +122,8 @@ def match_longitudes(ds: xr.Dataset) -> xr.Dataset:
     ds : xarray.Dataset
         Dataset with longitudes in the range [-180, 180].
     """
+    if ds.lon.min() > 0:
+        raise ValueError("Dataset longitudes are likely not in the range [-180, 180] which is the intention of this function. Check longitude units.")
+
     ds = ds.assign_coords(lon=(ds.lon + 360))
     return ds

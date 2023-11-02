@@ -21,70 +21,6 @@ cfg = compose(config_name="test_config")
 # Load test data from config
 climate_data = instantiate(cfg)
 
-# # Load test data from config
-# test_data = TestData(climate_data=climate_data)
-# hr = test_data.hr_dataset
-# lr = test_data.lr_dataset
-
-# # Create bad lr data with multiple keys
-# multiple_lr_keys = lr.copy()
-# multiple_lr_keys["u10"] = lr["uas"]
-# # Create bad lr data with missing keys
-# missing_lr_keys = lr.copy()
-# missing_lr_keys = missing_lr_keys.drop_vars("uas")
-
-# # Create bad hr data with multiple keys
-# multiple_hr_keys = hr.copy()
-# multiple_hr_keys = multiple_hr_keys.rename({"U10": "uas"})
-# multiple_hr_keys["u10"] = multiple_hr_keys["uas"]
-
-# # Create bad hr data with missing keys
-# missing_hr_keys = hr.copy()
-# missing_hr_keys = missing_hr_keys.drop_vars("U10")
-
-
-# @pytest.mark.parametrize("ds", [lr, hr])
-# @pytest.mark.parametrize(
-#     "config, key_attr, expected",
-#     [
-#         (cfg.vars, "data_vars", ["U10", "V10"]),
-#         (cfg.coords, "coords", ["lat", "lon"]),
-#         (cfg.dims, "dims", ["time"]),
-#     ],
-# )
-# def test_good_configure_metadata(ds, config, key_attr, expected):
-#     ds = configure_metadata(ds=ds, keymaps=config, key_attr=key_attr)
-#     for key in expected:
-#         assert key in getattr(ds, key_attr), f"{key} not in dataset"
-
-
-# bad_vars_multiple_alt = {"U10": {"alternative_names": ["u10", "uas"]}}
-
-
-# @pytest.mark.parametrize(
-#     "ds, config, key_attr, expected",
-#     [
-#         (missing_lr_keys, cfg.vars, "data_vars", MissingKeys),
-#         (missing_hr_keys, cfg.vars, "data_vars", MissingKeys),
-#         (multiple_lr_keys, cfg.vars, "data_vars", MultipleKeys),
-#         (multiple_hr_keys, cfg.vars, "data_vars", MultipleKeys),
-#     ],
-# )
-# def test_homogonize_missing_or_multiple_names(ds, config, key_attr, expected):
-#     # Note that tas is included as an LR variable only in the config.
-#     # This round of testing accounts for the lr_only: True flag in the config
-#     with pytest.raises(expected):
-#         ds = configure_metadata(ds=ds, keymaps=config, key_attr=key_attr)
-
-
-# @pytest.mark.parametrize("ds", [hr_data])
-# def test_match_longitudes(ds):
-#     hr = homogenize_names(ds=ds, keymaps=cfg.coords, key_attr="coords")
-#     hr = match_longitudes(hr) if cfg.hr.is_west_negative else hr
-#     assert hr.lon.min() >= 0, "min longitude is negative"
-#     assert hr.lon.max() <= 360, "max longitude is greater than 360"
-
-
 # Test data
 dims = [
     ClimateDimension(name="time", alternative_names=["Time"]),
@@ -154,8 +90,9 @@ test_cases = [
                 "temperature": (
                     ("extra_dim", "time", "rlat", "rlon"),
                     [[[[1, 2], [3, 4]], [[1, 2], [3, 4]]]],
-                )
-            }
+                ),
+            },
+            coords={"extra_dim": [0], "time": [0, 1]},
         ),
         "var": var,
         "climdata": climdata,
@@ -165,7 +102,8 @@ test_cases = [
                     ("time", "rlat", "rlon"),
                     [[[1, 2], [3, 4]], [[1, 2], [3, 4]]],
                 )
-            }
+            },
+            coords={"time": [0, 1]},
         ),
     },
     # Error case: var.name is not in ds
@@ -205,3 +143,42 @@ def test_configure_metadata(case):
     else:
         with pytest.raises(case["expected"]):
             configure_metadata(ds, var, climdata)
+
+
+test_cases = [
+    {
+        "id": "happy_path_west_postitive",
+        "ds": xr.Dataset(data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])}, coords={"lat": [0, 1], "lon": [0, 1]}),
+        "is_west_negative": False,
+        "expected": xr.Dataset(data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])}, coords={"lat": [0, 1], "lon": [0, 1]}),
+    },
+    {
+        "id": "happy_path_west_negative",
+        "ds": xr.Dataset(data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])}, coords={"lat": [0, 1], "lon": [-180, 0]}),
+        "is_west_negative": True,
+        "expected": xr.Dataset(data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])}, coords={"lat": [0, 1], "lon": [180, 360]}),
+    },
+    {
+        "id": "error_case_min_max_lontitude_out_of_bounds",
+        "ds": xr.Dataset(data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])}, coords={"lat": [0, 1], "lon": [0, 181]}),
+        "is_west_negative": True,
+        "expected": ValueError,
+    }
+]
+@pytest.mark.parametrize("case", test_cases, ids=[case["id"] for case in test_cases])
+def test_match_longitudes(case):
+    # Arrange
+    ds = case["ds"]
+    is_west_negative = case["is_west_negative"]
+    ds = match_longitudes(ds) if is_west_negative else ds
+    expected = case["expected"]
+
+    # Act
+    if "error" in case["id"]:
+        with pytest.raises(expected):
+            match_longitudes(ds)
+    else:
+        # Assert
+        assert ds.equals(expected)
+        assert ds.lon.min() >= 0, "min longitude is negative"
+        assert ds.lon.max() <= 360, "max longitude is greater than 360"

@@ -181,7 +181,7 @@ def align_grid(
         climdata.select.spatial.x,
         climdata.select.spatial.y,
     )
-    ds = ds.drop(["lat", "lon"])
+    ds = ds.drop_vars(["lat", "lon"])
 
     return ds
 
