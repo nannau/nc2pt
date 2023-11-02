@@ -1,4 +1,5 @@
 dask
+zarr
 netCDF4
 hydra-core
 h5netcdf

@@ -1,17 +1,13 @@
 from nc2pt.metadata import (
     MultipleKeys,
-    MissingKey,
     configure_metadata,
-    rename_keys,
     match_longitudes,
 )
 
 import xarray as xr
 from nc2pt.climatedata import ClimateDimension, ClimateVariable, ClimateData
 
-
-from nc2pt.tests.test_data import TestData
-from hydra import compose, initialize
+from hydra import compose
 from hydra.utils import instantiate
 import pytest
 
@@ -148,23 +144,40 @@ def test_configure_metadata(case):
 test_cases = [
     {
         "id": "happy_path_west_postitive",
-        "ds": xr.Dataset(data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])}, coords={"lat": [0, 1], "lon": [0, 1]}),
+        "ds": xr.Dataset(
+            data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])},
+            coords={"lat": [0, 1], "lon": [0, 1]}
+        ),
         "is_west_negative": False,
-        "expected": xr.Dataset(data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])}, coords={"lat": [0, 1], "lon": [0, 1]}),
+        "expected": xr.Dataset(
+            data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])},
+            coords={"lat": [0, 1], "lon": [0, 1]}
+        ),
     },
     {
         "id": "happy_path_west_negative",
-        "ds": xr.Dataset(data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])}, coords={"lat": [0, 1], "lon": [-180, 0]}),
+        "ds": xr.Dataset(
+            data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])},
+            coords={"lat": [0, 1], "lon": [-180, 0]}
+        ),
         "is_west_negative": True,
-        "expected": xr.Dataset(data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])}, coords={"lat": [0, 1], "lon": [180, 360]}),
+        "expected": xr.Dataset(
+            data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])},
+            coords={"lat": [0, 1], "lon": [180, 360]}
+        ),
     },
     {
         "id": "error_case_min_max_lontitude_out_of_bounds",
-        "ds": xr.Dataset(data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])}, coords={"lat": [0, 1], "lon": [0, 181]}),
+        "ds": xr.Dataset(
+            data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])},
+            coords={"lat": [0, 1], "lon": [0, 181]}
+        ),
         "is_west_negative": True,
         "expected": ValueError,
     }
 ]
+
+
 @pytest.mark.parametrize("case", test_cases, ids=[case["id"] for case in test_cases])
 def test_match_longitudes(case):
     # Arrange
