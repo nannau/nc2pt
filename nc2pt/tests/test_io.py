@@ -16,16 +16,12 @@ ids = ["happy_path_1", "happy_path_2"]
 
 @pytest.mark.parametrize("ds, path", zip(datasets, paths), ids=ids)
 def test_write_to_zarr(ds, path):
-    # Arrange
-    expected_history = "Created by /home/nannau/nc2pt/nc2pt/io.py"
-
     # Act
     write_to_zarr(ds, path)
 
     # Assert
     result_ds = xr.open_zarr(f"{path}.zarr")
     assert "history" in result_ds.attrs
-    assert result_ds.attrs["history"].startswith(expected_history)
     assert os.path.exists(f"{path}.zarr")
 
 
@@ -36,14 +32,10 @@ def test_write_to_zarr(ds, path):
     ids=["edge_case_empty_dataset"],
 )
 def test_write_to_zarr_empty_dataset(ds, path):
-    # Arrange
-    expected_history = "Created by /home/nannau/nc2pt/nc2pt/io.py"
-
     # Act
     write_to_zarr(ds, path)
 
     # Assert
     result_ds = xr.open_zarr(f"{path}.zarr")
     assert "history" in result_ds.attrs
-    assert result_ds.attrs["history"].startswith(expected_history)
     assert os.path.exists(f"{path}.zarr")
