@@ -1,6 +1,7 @@
 # nc2pt
 ![example workflow](https://github.com/nannau/ClimatExPrep/actions/workflows/python-package-conda.yml/badge.svg?event=push)
 [![codecov](https://codecov.io/gh/nannau/nc2pt/graph/badge.svg?token=XXRLD3076V)](https://codecov.io/gh/nannau/nc2pt)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ## The Problem
 NetCDF4 files, commonly used for storing climate and earth systems data, are not optimized for use with most machine learning applications where small amounts of data are require quickly and frequently. 
