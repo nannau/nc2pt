@@ -32,7 +32,7 @@ def preprocess_variables(model: ClimateModel, climdata: ClimateData) -> None:
     alignment_procedures = {}
     if model.hr_ref is not None:
         hr_ref = load_grid(model.hr_ref.path, engine=climdata.compute.engine)
-        logging.info("Processing high resolution reference field...")
+        logging.info("👀 Processing high resolution reference field...")
         hr_ref = configure_metadata_fn(hr_ref, instantiate(model.hr_ref))
         alignment_procedures |= {
             "lr": partial(align_with_lr, hr_ref=hr_ref, climdata=climdata),
@@ -48,7 +48,7 @@ def preprocess_variables(model: ClimateModel, climdata: ClimateData) -> None:
 
         start = timer()
         logging.info(
-            f"Starting {climate_variable.name} from {model.info} input dataset..."
+            f"✨ Starting {climate_variable.name} from {model.info} input dataset..."
         )
 
         ds = configure_metadata_fn(ds, climate_variable)
@@ -77,7 +77,9 @@ def preprocess_variables(model: ClimateModel, climdata: ClimateData) -> None:
 
         # This implies that it is a different grid or a lr dataset.
         ds = alignment_procedures[model.name](ds)
-        logging.info(f"Applying user defined transform {climate_variable.transform}...")
+        logging.info(
+            f"✨ Applying user defined transform {climate_variable.transform}..."
+        )
         ds = (
             user_defined_transform(ds, climate_variable)
             if climate_variable.transform is not None
@@ -89,22 +91,22 @@ def preprocess_variables(model: ClimateModel, climdata: ClimateData) -> None:
                 ds, climdata, climate_variable
             )
             for train_test_validation in train_test_validation_ds:
-                logging.info(f"Writing {train_test_validation} output...")
+                logging.info(f"✨ Writing {train_test_validation} output...")
                 write_to_zarr(
                     train_test_validation_ds[train_test_validation].chunk(chunk_dims),
                     f"{climdata.output_path}/{climate_variable.name}_{train_test_validation}_{model.name}",
                 )
 
         else:
-            logging.info("Writing output...")
+            logging.info("✨ Writing output...")
             write_to_zarr(
                 ds.chunk(chunk_dims),
                 f"{climdata.output_path}/{climate_variable.name}_{model.name}",
             )
 
         end = timer()
-        logging.info(f"Done processing {climate_variable.name} in {model.info}!")
-        logging.info(f"Time elapsed: {timedelta(seconds=end-start)}")
+        logging.info(f"🎉 Done processing {climate_variable.name} in {model.info}!")
+        logging.info(f"⏳ Time elapsed ⏳: {timedelta(seconds=end-start)}")
 
 
 def preprocess(climdata: ClimateData) -> None:

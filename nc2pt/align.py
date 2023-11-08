@@ -38,7 +38,9 @@ def slice_time(ds: xr.Dataset, start: str, end: str) -> xr.Dataset:
     return ds
 
 
-def train_test_split(ds: xr.Dataset, test_years: list, validation_years: list) -> Dict[str, xr.Dataset]:
+def train_test_split(
+    ds: xr.Dataset, test_years: list, validation_years: list
+) -> Dict[str, xr.Dataset]:
     """Split the dataset into a training and test set.
 
     Parameters
@@ -177,11 +179,11 @@ def align_grid(
     Processed low resolution xarray dataset.
     """
     # Regrid and align the dataset.
-    logging.info("Regridding and interpolating...")
+    logging.info("🚀 Regridding and interpolating...")
     ds = interpolate(ds, hr_ref)
 
     # Crop the field to the given size.
-    logging.info("Cropping field...")
+    logging.info("🌎 Cropping field...")
     ds = crop_field(
         ds,
         climdata.select.spatial.scale_factor,
@@ -209,7 +211,7 @@ def align_with_lr(ds, hr_ref, climdata) -> xr.Dataset:
     ds = align_grid(ds, hr_ref, climdata)
 
     # Coarsen the low resolution dataset.
-    logging.info("Coarsening low resolution dataset...")
+    logging.info("🌎 Coarsening low resolution dataset...")
     ds = coarsen_lr(ds, climdata.select.spatial.scale_factor)
 
     return ds
