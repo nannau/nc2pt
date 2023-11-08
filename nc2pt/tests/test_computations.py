@@ -248,7 +248,9 @@ test_split_and_standardize_cases = [
     # Happy path
     {
         "id": "happy_path_normal_years",
-        "climatedata": OmegaConf.create({"select": {"time": {"test_years": [2000]}}}),
+        "climatedata": OmegaConf.create(
+            {"select": {"time": {"test_years": [2000], "validation_years": [2001]}}}
+        ),
         "var": OmegaConf.create({"name": "var"}),
     },
 ]
@@ -286,3 +288,10 @@ def test_split_and_standardize(case: Dict[str, Any]):
     assert np.isclose(
         result["test"]["var"].attrs["std"], result["train"]["var"].attrs["std"]
     ), "Std of train and test set are not equal."
+
+    assert np.isclose(
+        result["validation"]["var"].attrs["mean"], result["train"]["var"].attrs["mean"]
+    ), "Mean of train and validation set are not equal."
+    assert np.isclose(
+        result["validation"]["var"].attrs["std"], result["train"]["var"].attrs["std"]
+    ), "Std of train and validation set are not equal."
