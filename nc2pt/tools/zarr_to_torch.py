@@ -2,6 +2,7 @@ import os
 import logging
 from datetime import timedelta
 from timeit import default_timer as timer
+from functools import partial
 
 import xarray as xr
 import torch
@@ -36,7 +37,7 @@ def loop_over_variables(climate_data, model, var, s):
     ) as ds:
         # Create parent dir if it doesn't exist for each variable
         make_dirs(output_path, s, var.name, model.name)
-        indices = np.arange(ds.time.size)[:1000]
+        indices = np.arange(ds.time.size)
 
         partial_paths = [
             f"{output_path}/{s}/{var.name}/{model.name}/{var.name}_{i}.pt"
@@ -50,7 +51,7 @@ def loop_over_variables(climate_data, model, var, s):
         )
 
         progress_starmap(
-            parallel_loop, pool_tuple, total=ds.time[:1000].size, n_cpu=24, chunk_size=1
+            parallel_loop, pool_tuple, total=ds.time.size, n_cpu=24, chunk_size=1
         )
 
 
@@ -62,7 +63,7 @@ def loop_over_sets(climate_data, model, s):
         loop_over_variables(climate_data, model, var, s)
 
 
-@hydra.main(version_base=None, config_path="../nc2pt/conf", config_name="config")
+@hydra.main(version_base=None, config_path="../conf", config_name="config")
 def main(climate_data) -> None:
     # Define for loop that iterates over sets, resolutions, and variables
     # and saves each time step as a torch tensor to write to a pytorch file
@@ -70,8 +71,11 @@ def main(climate_data) -> None:
     climate_data = instantiate(climate_data)
     for model in climate_data.climate_models:
         start = timer()
-        loop_over_sets(climate_data, model, "train")
-        loop_over_sets(climate_data, model, "test")
+
+        partial_set_loop = partial(loop_over_sets, climate_data, model)
+        for s in ["train", "test", "validation"]:
+            partial_set_loop(s)
+
         end = timer()
         logging.info(f"Finished {model.name} dataset in {timedelta(seconds=end-start)}")
 
