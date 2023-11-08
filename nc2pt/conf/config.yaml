@@ -22,7 +22,7 @@ climate_models:
       - _target_: nc2pt.climatedata.ClimateVariable
         name: "pr"
         alternative_names: ["PREC"]
-        path: /home/nannau/USask-WRF-WCA/fire_vars/PREC/*.nc
+        path:  /home/nannau/USask-WRF-WCA/fire_vars/PREC/*.nc
         is_west_negative: true
         invariant: false
         transform: null
@@ -150,6 +150,7 @@ select:
     # use this to select which years to reserve for testing
     # the remaining years in full will be used for training
     test_years: [2000, 2009, 2014]
+    validation_years: [2015]
 
   # sets the scale factor and index slices of the rotated coordinates
   spatial:

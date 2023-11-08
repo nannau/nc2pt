@@ -116,11 +116,12 @@ def compute_standardization(
 def split_and_standardize(ds, climdata, var) -> dict:
     # Train test split
     logging.info("Splitting dataset...")
-    train_test = train_test_split(ds, climdata.select.time.test_years)
+    train_test = train_test_split(ds, climdata.select.time.test_years, climdata.select.time.validation_years)
 
     # Standardize the dataset.
     logging.info(f"Standardizing {var.name}...")
     train = compute_standardization(train_test["train"], var.name)
     test = compute_standardization(train_test["test"], var.name, train_test["train"])
+    validation = compute_standardization(train_test["validation"], var.name, train_test["train"])
 
-    return {"train": train, "test": test}
+    return {"train": train, "test": test, "validation": validation}
