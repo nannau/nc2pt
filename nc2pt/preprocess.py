@@ -85,12 +85,14 @@ def preprocess_variables(model: ClimateModel, climdata: ClimateData) -> None:
         )
 
         if climate_variable.invariant is False:
-            train_test_ds = split_and_standardize(ds, climdata, climate_variable)
-            for train_test in train_test_ds:
-                logging.info(f"Writing {train_test} output...")
+            train_test_validation_ds = split_and_standardize(
+                ds, climdata, climate_variable
+            )
+            for train_test_validation in train_test_validation_ds:
+                logging.info(f"Writing {train_test_validation} output...")
                 write_to_zarr(
-                    train_test_ds[train_test].chunk(chunk_dims),
-                    f"{climdata.output_path}/{climate_variable.name}_{train_test}_{model.name}",
+                    train_test_validation_ds[train_test_validation].chunk(chunk_dims),
+                    f"{climdata.output_path}/{climate_variable.name}_{train_test_validation}_{model.name}",
                 )
 
         else:

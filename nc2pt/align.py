@@ -38,7 +38,7 @@ def slice_time(ds: xr.Dataset, start: str, end: str) -> xr.Dataset:
     return ds
 
 
-def train_test_split(ds: xr.Dataset, years: list) -> Dict[str, xr.Dataset]:
+def train_test_split(ds: xr.Dataset, test_years: list, validation_years: list) -> Dict[str, xr.Dataset]:
     """Split the dataset into a training and test set.
 
     Parameters
@@ -57,19 +57,26 @@ def train_test_split(ds: xr.Dataset, years: list) -> Dict[str, xr.Dataset]:
     """
 
     # check that list of years is not empty
-    if not years:
+    if not test_years or not validation_years:
         raise ValueError("List of years is empty.")
 
     # check if years is a list
-    if not isinstance(years, list) and not isinstance(
-        years, omegaconf.listconfig.ListConfig
+    if not isinstance(test_years, list) and not isinstance(
+        test_years, omegaconf.listconfig.ListConfig
     ):
-        raise ValueError("Years is not a list.")
+        raise ValueError("Test years is not a list.")
 
-    train = ds.isel(time=~ds.time.dt.year.isin(years), drop=True)
-    test = ds.isel(time=ds.time.dt.year.isin(years), drop=True)
+    if not isinstance(validation_years, list) and not isinstance(
+        validation_years, omegaconf.listconfig.ListConfig
+    ):
+        raise ValueError("Validation years is not a list.")
 
-    return {"train": train, "test": test}
+    test_validation_years = test_years + validation_years
+    train = ds.isel(time=~ds.time.dt.year.isin(test_validation_years), drop=True)
+    test = ds.isel(time=ds.time.dt.year.isin(test_years), drop=True)
+    validation = ds.isel(time=ds.time.dt.year.isin(validation_years), drop=True)
+
+    return {"train": train, "test": test, "validation": validation}
 
 
 def crop_field(ds, scale_factor, x, y):

@@ -106,8 +106,10 @@ select:
       end: "20250928T12:00:00"
 
     # use this to select which years to reserve for testing
+    # and for validation
     # the remaining years in full will be used for training
     test_years: [2000, 2009, 2014]
+    validation_years: [2015]
 
   # sets the scale factor and index slices of the rotated coordinates
   spatial:

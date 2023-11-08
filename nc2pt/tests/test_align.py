@@ -147,12 +147,44 @@ def test_slice_time_count(ds, case: Dict[str, Any]):
 # Test train_test_split function
 train_test_split_cases = [
     # Happy path
-    {"id": "happy_path_normal_years", "years": [2000, 2001], "expected": 19_727},
+    {
+        "id": "happy_path_normal_years",
+        "test_years": [2000, 2001],
+        "validation_years": [2003],
+        "expected": None,
+    },
+    {
+        "id": "happy_path_normal_years",
+        "test_years": [2000],
+        "validation_years": [2001],
+        "expected": None,
+    },
     # edge case
-    {"id": "edge_case_single_year", "years": [2000], "expected": 2208},
+    {
+        "id": "edge_case_single_year",
+        "test_years": [2000],
+        "validation_years": [2000],
+        "expected": None,
+    },
     # error case
-    {"id": "error_case_empty_years", "years": [], "expected": ValueError},
-    {"id": "error_case_invalid_year", "years": 200, "expected": ValueError},
+    {
+        "id": "error_case_empty_years",
+        "test_years": [],
+        "validation_years": [],
+        "expected": ValueError,
+    },
+    {
+        "id": "error_case_invalid_year",
+        "test_years": 200,
+        "validation_years": [200],
+        "expected": ValueError,
+    },
+    {
+        "id": "error_case_invalid_year_validation",
+        "test_years": [200],
+        "validation_years": 200,
+        "expected": ValueError,
+    },
 ]
 
 
@@ -169,14 +201,15 @@ def test_train_test_split(case: Dict[str, Any]):
     if "error" in case["id"]:
         # Act & Assert
         with pytest.raises(case["expected"]):
-            train_test_split(ds, case["years"])
+            train_test_split(ds, case["test_years"], case["validation_years"])
     else:
         # Act
-        split_ds = train_test_split(ds, case["years"])
+        split_ds = train_test_split(ds, case["test_years"], case["validation_years"])
 
         # Assert
         assert "train" in split_ds
         assert "test" in split_ds
+        assert "validation" in split_ds
 
 
 x_large = np.ones((10, 100, 100))

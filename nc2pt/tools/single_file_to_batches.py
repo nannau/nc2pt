@@ -7,7 +7,7 @@ import logging
 import os
 import glob
 from parallelbar import progress_starmap
-
+from functools import partial
 
 torch.manual_seed(0)
 
@@ -31,7 +31,7 @@ def loop_over_variables(climate_data, model, var, s, res):
 
     indices = torch.randperm(
         len(glob.glob(f"{climate_data.output_path}/train/uas/lr/*.pt"))
-    )[:1000]
+    )
     indices = torch.split(indices, climate_data.loader.batch_size, dim=0)
 
     # Create parent dir if it doesn't exist for each variable
@@ -57,13 +57,16 @@ def loop_over_sets(climate_data, model, s):
         loop_over_variables(climate_data, model, var, s, model.name)
 
 
-@hydra.main(version_base=None, config_path="../nc2pt/conf", config_name="config")
+@hydra.main(version_base=None, config_path="../conf", config_name="config")
 def main(climate_data) -> None:
     climate_data = instantiate(climate_data)
     for model in climate_data.climate_models:
         start = timer()
-        loop_over_sets(climate_data, model, "train")
-        loop_over_sets(climate_data, model, "test")
+
+        partial_set_loop = partial(loop_over_sets, climate_data, model)
+        for s in ["train", "test", "validation"]:
+            partial_set_loop(s)
+
         end = timer()
         logging.info(f"Finished {model.name} dataset in {timedelta(seconds=end-start)}")
 
