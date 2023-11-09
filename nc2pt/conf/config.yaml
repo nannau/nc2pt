@@ -177,6 +177,6 @@ compute:
 
 # for tools scripts
 loader:
-  batch_size: 2
+  batch_size: 4
   randomize: true
   seed: 0
