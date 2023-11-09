@@ -1,12 +1,13 @@
-import torch
+from multiprocessing import get_context
 from datetime import timedelta
 from timeit import default_timer as timer
+
+import torch
 import hydra
 from hydra.utils import instantiate
 import logging
 import os
 import glob
-from parallelbar import progress_starmap
 from functools import partial
 
 torch.manual_seed(0)
@@ -26,11 +27,12 @@ def make_dirs(output_path: str, s, var_name: str, res: str) -> None:
 
 
 def loop_over_variables(climate_data, model, var, s, res):
+    logging.info(f"✨ Processing {var.name}...")
     climate_data = instantiate(climate_data)
     output_path = climate_data.output_path
 
     indices = torch.randperm(
-        len(glob.glob(f"{climate_data.output_path}/train/uas/lr/*.pt"))
+        len(glob.glob(f"{climate_data.output_path}/{s}/uas/lr/*.pt"))
     )
     indices = torch.split(indices, climate_data.loader.batch_size, dim=0)
 
@@ -39,20 +41,23 @@ def loop_over_variables(climate_data, model, var, s, res):
     partial_paths = [
         f"{output_path}/{s}/{var.name}/{res}/{var.name}" for _ in range(len(indices))
     ]
-
+    # output paths with zfill
+    zfill_length = len(str(len(indices)))
     output_path = [
-        f"{output_path}/batched/{s}/{var.name}/{res}/{var.name}_{i}.pt"
+        f"{output_path}/batched/{s}/{var.name}/{res}/{var.name}_{str(i).zfill(zfill_length)}.pt"
         for i in range(len(indices))
     ]
 
-    pool_tuple = zip(indices, partial_paths, output_path)
-    progress_starmap(parallel_loop, pool_tuple, total=len(indices), n_cpu=24)
+    inputs = zip(indices, partial_paths, output_path)
+
+    with get_context("spawn").Pool(24) as pool:
+        pool.starmap(parallel_loop, inputs)
 
 
 def loop_over_sets(climate_data, model, s):
     model = instantiate(model)
 
-    logging.info(f"Loading {s} {model.name} dataset...")
+    logging.info(f"👀 Loading {s} {model.name} dataset...")
     for var in model.climate_variables:
         loop_over_variables(climate_data, model, var, s, model.name)
 
@@ -64,11 +69,13 @@ def main(climate_data) -> None:
         start = timer()
 
         partial_set_loop = partial(loop_over_sets, climate_data, model)
-        for s in ["train", "test", "validation"]:
+        for s in ["validation"]:
             partial_set_loop(s)
 
         end = timer()
-        logging.info(f"Finished {model.name} dataset in {timedelta(seconds=end-start)}")
+        logging.info(
+            f"🚀🎉 Finished {model.name} dataset in {timedelta(seconds=end-start)}"
+        )
 
 
 if __name__ == "__main__":
