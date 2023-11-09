@@ -33,7 +33,7 @@ def configure_metadata(
         Dataset after preprocessing.
     """
 
-    logging.info("Homogenizing dataset keys...")
+    logging.info("✨ Homogenizing dataset keys...")
 
     dim_coord_attrs = {"coords": climdata.coords, "dims": climdata.dims}
     for ds_attr, dim_or_coord in dim_coord_attrs.items():
