@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'nc2pt/**'
+      - '.github/**'
 
 jobs:
   build:
