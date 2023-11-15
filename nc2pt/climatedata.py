@@ -19,6 +19,7 @@ class ClimateVariable:
     is_west_negative: bool
     transform: Optional[str] = field(default=None)
     invariant: Optional[bool] = field(default=False)
+    apply_standardize: Optional[bool] = field(default=True)
 
 
 # Write a dataclass that loads config data from hydra-core and
@@ -32,7 +33,7 @@ class ClimateModel:
     hr_ref: Optional[ClimateVariable] = None
 
     def __post_init__(self):
-        logging.info(f"Instantiated Model with information: {self.info}")
+        logging.info(f"🌎 Instantiated Model with information: {self.info}")
 
 
 @dataclass

@@ -50,7 +50,6 @@ def configure_metadata(
 
         keys_to_remove = list(ds_attrs - dim_or_coord_attrs)
         logging.info(f"Dropping {keys_to_remove} from dataset.")
-        print(getattr(ds, "dims"), keys_to_remove, ds.attrs, ds)
 
         # assert 0
 

@@ -251,7 +251,14 @@ test_split_and_standardize_cases = [
         "climatedata": OmegaConf.create(
             {"select": {"time": {"test_years": [2000], "validation_years": [2001]}}}
         ),
-        "var": OmegaConf.create({"name": "var"}),
+        "var": OmegaConf.create({"name": "var", "apply_standardize": True}),
+    },
+    {
+        "id": "happy_path_normal_years",
+        "climatedata": OmegaConf.create(
+            {"select": {"time": {"test_years": [2000], "validation_years": [2001]}}}
+        ),
+        "var": OmegaConf.create({"name": "var", "apply_standardize": False}),
     },
 ]
 
@@ -278,20 +285,35 @@ def test_split_and_standardize(case: Dict[str, Any]):
         {"lat": np.arange(30), "lon": np.arange(30)},
     )
 
-    # Act
-    result = split_and_standardize(ds, case["climatedata"], case["var"])
+    if case["var"]["apply_standardize"] is True:
+        # Act
+        result = split_and_standardize(ds, case["climatedata"], case["var"])
 
-    # Assert
-    assert np.isclose(
-        result["test"]["var"].attrs["mean"], result["train"]["var"].attrs["mean"]
-    ), "Mean of train and test set are not equal."
-    assert np.isclose(
-        result["test"]["var"].attrs["std"], result["train"]["var"].attrs["std"]
-    ), "Std of train and test set are not equal."
+        # Assert
+        assert np.isclose(
+            result["test"]["var"].attrs["mean"], result["train"]["var"].attrs["mean"]
+        ), "Mean of train and test set are not equal."
+        assert np.isclose(
+            result["test"]["var"].attrs["std"], result["train"]["var"].attrs["std"]
+        ), "Std of train and test set are not equal."
 
-    assert np.isclose(
-        result["validation"]["var"].attrs["mean"], result["train"]["var"].attrs["mean"]
-    ), "Mean of train and validation set are not equal."
-    assert np.isclose(
-        result["validation"]["var"].attrs["std"], result["train"]["var"].attrs["std"]
-    ), "Std of train and validation set are not equal."
+        assert np.isclose(
+            result["validation"]["var"].attrs["mean"],
+            result["train"]["var"].attrs["mean"],
+        ), "Mean of train and validation set are not equal."
+        assert np.isclose(
+            result["validation"]["var"].attrs["std"],
+            result["train"]["var"].attrs["std"],
+        ), "Std of train and validation set are not equal."
+
+    else:
+        # Act
+        result = split_and_standardize(ds, case["climatedata"], case["var"])
+
+        # Assert mean, std not in result
+        assert "mean" not in result["test"]["var"].attrs
+        assert "std" not in result["test"]["var"].attrs
+        assert "mean" not in result["train"]["var"].attrs
+        assert "std" not in result["train"]["var"].attrs
+        assert "mean" not in result["validation"]["var"].attrs
+        assert "std" not in result["validation"]["var"].attrs

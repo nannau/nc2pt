@@ -42,7 +42,6 @@ def preprocess_variables(model: ClimateModel, climdata: ClimateData) -> None:
     for climate_variable in model.climate_variables:
         # Instantiates climate_variable object in cliamtedata.py
         climate_variable = instantiate(climate_variable)
-        print(climate_variable)
         chunk_dims = {dim.name: dim.chunksize for dim in climdata.dims}
         ds = load_grid(climate_variable.path, engine=climdata.compute.engine)
 

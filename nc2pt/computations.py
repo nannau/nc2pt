@@ -30,7 +30,7 @@ def user_defined_transform(ds: xr.Dataset, var: ClimateVariable) -> xr.Dataset:
 
     for transform in var.transform:
         try:
-            x = 1
+            x = 1  # noqa: F841
             eval(transform)  # x is implicitly a variable from the config
         except SyntaxError:
             raise SyntaxError(f"Invalid transform in config {transform}.")
@@ -67,7 +67,9 @@ def standardize(x: xr.DataArray, mean: float, std: float) -> xr.DataArray:
 
 
 def compute_standardization(
-    ds: xr.Dataset, varname: str, precomputed: xr.Dataset = None
+    ds: xr.Dataset,
+    varname: str,
+    precomputed: xr.Dataset = None,
 ) -> xr.Dataset:  # sourcery skip: avoid-builtin-shadow
     """Standardize the statistics of the dataset.
 
@@ -123,6 +125,14 @@ def split_and_standardize(ds, climdata, var) -> dict:
 
     # Standardize the dataset.
     logging.info(f"Standardizing {var.name}...")
+    if var.apply_standardize is False:
+        logging.info("Skipping standardization...")
+        return {
+            "train": train_test["train"],
+            "test": train_test["test"],
+            "validation": train_test["validation"],
+        }
+
     train = compute_standardization(train_test["train"], var.name)
     test = compute_standardization(train_test["test"], var.name, train_test["train"])
     validation = compute_standardization(
