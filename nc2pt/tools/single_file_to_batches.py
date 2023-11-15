@@ -9,16 +9,19 @@ import logging
 import os
 import glob
 from functools import partial
+import numpy as np
+from pathlib import Path
 
-torch.manual_seed(0)
+from numpy.random import RandomState
 
 
 def parallel_loop(sub_i, path, output_path):
-    sub_path = [f"{path}_{j}.pt" for j in sub_i]
+    sub_path = [f"{path}{j}" for j in sub_i]
     stack = [torch.load(sub) for sub in sub_path]
     x = torch.stack(stack, dim=0)
     assert not torch.isnan(x).any(), f"NaNs found in {sub_path}"
-    torch.save(x, output_path)
+    new_filename = [Path(x).stem for x in sub_i]
+    torch.save(x, output_path + "__".join(new_filename) + ".pt")
 
 
 def make_dirs(output_path: str, s, var_name: str, res: str) -> None:
@@ -31,23 +34,25 @@ def loop_over_variables(climate_data, model, var, s, res):
     climate_data = instantiate(climate_data)
     output_path = climate_data.output_path
 
-    indices = torch.randperm(
-        len(glob.glob(f"{climate_data.output_path}/{s}/uas/lr/*.pt"))
+    prng = RandomState(1234567890)
+    indices = prng.permutation(
+        len(glob.glob(f"{climate_data.output_path}/{s}/{var.name}/{res}/*.pt"))
+    ).tolist()
+
+    permuted_paths = np.array(
+        glob.glob(f"{climate_data.output_path}/{s}/{var.name}/{res}/*.pt")
+    )[indices]
+
+    permuted_paths = np.array([os.path.basename(path) for path in permuted_paths])
+    indices = np.array_split(
+        permuted_paths, len(indices) // climate_data.loader.batch_size, axis=0
     )
-    indices = torch.split(indices, climate_data.loader.batch_size, dim=0)
 
     # Create parent dir if it doesn't exist for each variable
     make_dirs(output_path, s, var.name, res)
-    partial_paths = [
-        f"{output_path}/{s}/{var.name}/{res}/{var.name}" for _ in range(len(indices))
-    ]
-    # output paths with zfill
-    zfill_length = len(str(len(indices)))
-    output_path = [
-        f"{output_path}/batched/{s}/{var.name}/{res}/{var.name}_{str(i).zfill(zfill_length)}.pt"
-        for i in range(len(indices))
-    ]
+    partial_paths = [f"{output_path}/{s}/{var.name}/{res}/" for _ in indices]
 
+    output_path = [f"{output_path}/batched/{s}/{var.name}/{res}/" for _ in indices]
     inputs = zip(indices, partial_paths, output_path)
 
     with get_context("spawn").Pool(24) as pool:
@@ -69,7 +74,7 @@ def main(climate_data) -> None:
         start = timer()
 
         partial_set_loop = partial(loop_over_sets, climate_data, model)
-        for s in ["validation"]:
+        for s in ["train", "test", "validation"]:
             partial_set_loop(s)
 
         end = timer()

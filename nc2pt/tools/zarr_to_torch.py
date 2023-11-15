@@ -13,8 +13,9 @@ import hydra
 from parallelbar import progress_starmap
 
 
-def parallel_loop(i, path, arr):
+def parallel_loop(i: int, path: str, arr: xr.DataArray):
     # i, path, arr = tup
+    # get yyyy-mm-dd frmo arr and add it to filename
     arr = arr.values
     x = torch.tensor(np.array(arr))
     assert not torch.isnan(x).any(), f"NaNs found in {i}"
@@ -35,9 +36,10 @@ def loop_over_variables(climate_data, model, var, s):
     with xr.open_zarr(
         f"{output_path}/{var.name}_{s}_{model.name}.zarr/", chunks=chunks
     ) as ds:
+        ds = ds.sortby("time")
         # Create parent dir if it doesn't exist for each variable
         make_dirs(output_path, s, var.name, model.name)
-        indices = np.arange(ds.time.size)
+        indices = ds.time.dt.strftime("%Y-%m-%d-%H").values
 
         partial_paths = [
             f"{output_path}/{s}/{var.name}/{model.name}/{var.name}_{i}.pt"
