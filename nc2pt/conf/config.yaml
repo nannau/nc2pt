@@ -28,37 +28,37 @@ climate_models:
         invariant: false
         transform: null
 
-      # - _target_: nc2pt.climatedata.ClimateVariable
-      #   name: "uas"
-      #   alternative_names: ["U10", "u10", "uas"]
-      #   path: /home/nannau/USask-WRF-WCA/fire_vars/U10/*.nc
-      #   is_west_negative: true
-      #   invariant: false
-      #   transform: null
+      - _target_: nc2pt.climatedata.ClimateVariable
+        name: "uas"
+        alternative_names: ["U10", "u10", "uas"]
+        path: /home/nannau/USask-WRF-WCA/fire_vars/U10/*.nc
+        is_west_negative: true
+        invariant: false
+        transform: null
 
-      # - _target_: nc2pt.climatedata.ClimateVariable
-      #   name: "Q2"
-      #   alternative_names: ["hurs", "huss", "Q2", "q2"]
-      #   path: /home/nannau/USask-WRF-WCA/fire_vars/Q2/*.nc
-      #   is_west_negative: true
-      #   invariant: false
-      #   transform: null
+      - _target_: nc2pt.climatedata.ClimateVariable
+        name: "Q2"
+        alternative_names: ["hurs", "huss", "Q2", "q2"]
+        path: /home/nannau/USask-WRF-WCA/fire_vars/Q2/*.nc
+        is_west_negative: true
+        invariant: false
+        transform: null
 
-      # - _target_: nc2pt.climatedata.ClimateVariable
-      #   name: "vas"
-      #   alternative_names: ["V10", "v10", "vas"]
-      #   path: /home/nannau/USask-WRF-WCA/fire_vars/V10/*.nc
-      #   is_west_negative: true
-      #   invariant: false
-      #   transform: null
+      - _target_: nc2pt.climatedata.ClimateVariable
+        name: "vas"
+        alternative_names: ["V10", "v10", "vas"]
+        path: /home/nannau/USask-WRF-WCA/fire_vars/V10/*.nc
+        is_west_negative: true
+        invariant: false
+        transform: null
 
-      # - _target_: nc2pt.climatedata.ClimateVariable
-      #   name: "tas"
-      #   alternative_names: ["T2", "surface temperature"]
-      #   path: /home/nannau/USask-WRF-WCA/fire_vars/T2/*.nc
-      #   is_west_negative: true
-      #   invariant: false
-      #   transform: null
+      - _target_: nc2pt.climatedata.ClimateVariable
+        name: "tas"
+        alternative_names: ["T2", "surface temperature"]
+        path: /home/nannau/USask-WRF-WCA/fire_vars/T2/*.nc
+        is_west_negative: true
+        invariant: false
+        transform: null
 
   - _target_: nc2pt.climatedata.ClimateModel
     info: "Low resolution ERA5, Western Canada"
@@ -71,13 +71,13 @@ climate_models:
       is_west_negative: true
 
     climate_variables:
-      # - _target_: nc2pt.climatedata.ClimateVariable
-      #   name: "uas"
-      #   alternative_names: ["U10", "u10", "uas"]
-      #   path: /home/nannau/ERA5_NCAR-RDA_North_America/proc/uas_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
-      #   is_west_negative: false
-      #   invariant: false
-      #   transform: null
+      - _target_: nc2pt.climatedata.ClimateVariable
+        name: "uas"
+        alternative_names: ["U10", "u10", "uas"]
+        path: /home/nannau/ERA5_NCAR-RDA_North_America/proc/uas_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
+        is_west_negative: false
+        invariant: false
+        transform: null
 
       - _target_: nc2pt.climatedata.ClimateVariable
         name: "pr"
@@ -90,29 +90,29 @@ climate_models:
           - "x * 3600"
           # - "np.log10(x + 1)"
 
-      # - _target_: nc2pt.climatedata.ClimateVariable
-      #   name: "Q2"
-      #   alternative_names: ["hurs", "huss", "Q2", "q2"]
-      #   path: /home/nannau/ERA5_NCAR-RDA_North_America/proc/huss_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
-      #   is_west_negative: false
-      #   invariant: false
-      #   transform: null
+      - _target_: nc2pt.climatedata.ClimateVariable
+        name: "Q2"
+        alternative_names: ["hurs", "huss", "Q2", "q2"]
+        path: /home/nannau/ERA5_NCAR-RDA_North_America/proc/huss_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
+        is_west_negative: false
+        invariant: false
+        transform: null
 
-      # - _target_: nc2pt.climatedata.ClimateVariable
-      #   name: "vas"
-      #   alternative_names: ["V10", "v10", "vas"]
-      #   path: /home/nannau/ERA5_NCAR-RDA_North_America/proc/vas_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
-      #   is_west_negative: false
-      #   invariant: false
-      #   transform: null
+      - _target_: nc2pt.climatedata.ClimateVariable
+        name: "vas"
+        alternative_names: ["V10", "v10", "vas"]
+        path: /home/nannau/ERA5_NCAR-RDA_North_America/proc/vas_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
+        is_west_negative: false
+        invariant: false
+        transform: null
 
-      # - _target_: nc2pt.climatedata.ClimateVariable
-      #   name: "tas"
-      #   alternative_names: ["T2", "surface temperature"]
-      #   path: /home/nannau/ERA5_NCAR-RDA_North_America/proc/tas_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
-      #   is_west_negative: false
-      #   invariant: false
-      #   transform: null
+      - _target_: nc2pt.climatedata.ClimateVariable
+        name: "tas"
+        alternative_names: ["T2", "surface temperature"]
+        path: /home/nannau/ERA5_NCAR-RDA_North_America/proc/tas_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
+        is_west_negative: false
+        invariant: false
+        transform: null
 
 dims: # Defines the dimensions of the dataset and lists them to be initialized as ClimateDimension objects
   - _target_: nc2pt.climatedata.ClimateDimension
@@ -146,7 +146,7 @@ select:
     # Crop to the dataset with the shortest run
     # this defines the full dataset from which to subset
     range:
-      start: "20001001T01:00:00"
+      start: "20001001T06:00:00"
       end: "20150928T12:00:00"
 
     # use this to select which years to reserve for testing
