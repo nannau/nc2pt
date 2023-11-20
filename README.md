@@ -30,7 +30,7 @@ It performs a preprocessing flow on climate fields and converts them from NetCDF
 ## What preprocessing steps does nc2pt do? 🤔
 
 High-level workflow
-![image](https://github.com/nannau/nc2pt/assets/10455520/869fa159-5dc0-4e81-90b0-d7fa5d35c96a)
+![image](https://github.com/nannau/nc2pt/assets/10455520/a4713306-9c6a-4225-b0d5-ade46fda5cad)
 
 1. configures metadata between the datasets as defined in the config
 2. slices data to a pre-determined range of dates
