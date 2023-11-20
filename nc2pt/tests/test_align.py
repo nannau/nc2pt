@@ -67,13 +67,19 @@ test_cases = [
         "end": "2000-01-01",
         "expected": dummy_time.sel(time=slice("2000-01-01", "2000-01-01")),
     },
+    # Error cases
     {
-        "id": "edge_case_outside_range",
+        "id": "edge_case_before_range",
         "start": "1999-12-31",
         "end": "2000-01-11",
-        "expected": dummy_time,
+        "expected": ValueError,
     },
-    # Error cases
+    {
+        "id": "edge_case_after_range",
+        "start": "2000-01-01",
+        "end": "2100-01-11",
+        "expected": ValueError,
+    },
     {
         "id": "error_case_invalid_date",
         "start": "2000-01-01",

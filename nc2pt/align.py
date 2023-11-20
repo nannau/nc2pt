@@ -33,6 +33,14 @@ def slice_time(ds: xr.Dataset, start: str, end: str) -> xr.Dataset:
     if end < start:
         raise ValueError("End date is before start date.")
 
+    # Check if start is before the dataset
+    if start < ds.time.min():
+        raise ValueError("Start date is before the dataset begins.")
+
+    # Check if end is after the dataset
+    if end > ds.time.max():
+        raise ValueError("End date is after the dataset ends.")
+
     ds = ds.sel(time=slice(start, end), drop=True)
 
     return ds
