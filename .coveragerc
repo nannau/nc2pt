@@ -3,3 +3,4 @@ omit =
     nc2pt/__init__.py
     nc2pt/tests/*.py
     nc2pt/preprocess.py
+    nc2pt/tools/*.py
