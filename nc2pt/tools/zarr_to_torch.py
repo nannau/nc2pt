@@ -12,6 +12,8 @@ import hydra
 
 from parallelbar import progress_starmap
 
+from nc2pt.climatedata import ClimateModel, ClimateVariable
+
 
 def parallel_loop(i: int, path: str, arr: xr.DataArray):
     # i, path, arr = tup

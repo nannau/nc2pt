@@ -134,4 +134,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-nc2pt/tests/test_data/
+nc2pt/tests/test_data/*.zarr
