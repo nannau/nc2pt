@@ -14,6 +14,8 @@ from pathlib import Path
 
 from numpy.random import RandomState
 
+from itertools import islice
+
 
 def parallel_loop(sub_i, path, output_path):
     sub_path = [f"{path}{j}" for j in sub_i]
@@ -27,6 +29,15 @@ def parallel_loop(sub_i, path, output_path):
 def make_dirs(output_path: str, s, var_name: str, res: str) -> None:
     if not os.path.exists(f"{output_path}/batched/{s}/{var_name}/{res}"):
         os.makedirs(f"{output_path}/batched/{s}/{var_name}/{res}")
+
+
+def batched(iterable, n):
+    # batched('ABCDEFG', 3) --> ABC DEF G
+    if n < 1:
+        raise ValueError("n must be at least one")
+    it = iter(iterable)
+    while batch := tuple(islice(it, n)):
+        yield batch
 
 
 def loop_over_variables(climate_data, model, var, s, res):
@@ -44,9 +55,7 @@ def loop_over_variables(climate_data, model, var, s, res):
     )[indices]
 
     permuted_paths = np.array([os.path.basename(path) for path in permuted_paths])
-    indices = np.array_split(
-        permuted_paths, len(indices) // climate_data.loader.batch_size, axis=0
-    )
+    indices = list(batched(permuted_paths, climate_data.loader.batch_size))
 
     # Create parent dir if it doesn't exist for each variable
     make_dirs(output_path, s, var.name, res)
