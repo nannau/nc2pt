@@ -17,14 +17,12 @@ from pathlib import Path
 from numpy.random import RandomState
 
 
-def parallel_loop(sub_i, path, output_path):
-    sub_path = [f"{path}{j}" for j in sub_i]
-    stack = [torch.load(sub) for sub in sub_path]
-    x = torch.stack(stack, dim=0) > 0
+def parallel_loop(input_path, output_path):
+    delta_precip = 0.0769779160618782 / 0.3726992905139923
+    x = torch.load(input_path) > delta_precip
     x = 1 * x
-    assert not torch.isnan(x).any(), f"NaNs found in {sub_path}"
-    new_filename = [f"mask_{Path(x).stem}" for x in sub_i]
-    torch.save(x, output_path + "__".join(new_filename) + ".pt")
+    assert not torch.isnan(x).any(), f"NaNs found in {input_path}"
+    torch.save(x, output_path)
 
 
 def make_dirs(output_path: str, s, var_name: str, res: str) -> None:
@@ -35,28 +33,18 @@ def make_dirs(output_path: str, s, var_name: str, res: str) -> None:
 def loop_over_variables(climate_data, model, var, s, res):
     logging.info(f"✨ Processing {var.name}...")
     climate_data = instantiate(climate_data)
-    output_path = climate_data.output_path
+    output_path_base = climate_data.output_path
 
-    prng = RandomState(1234567890)
-    indices = prng.permutation(
-        len(glob.glob(f"{climate_data.output_path}/{s}/{var.name}/{res}/*.pt"))
-    ).tolist()
+    input_paths = sorted(glob.glob(f"{output_path_base}/batched/{s}/pr/{res}/*.pt"))
+    indices = [os.path.basename(path) for path in input_paths]
 
-    permuted_paths = np.array(
-        glob.glob(f"{climate_data.output_path}/{s}/{var.name}/{res}/*.pt")
-    )[indices]
+    make_dirs(output_path_base, s, "pr_mask", res)
 
-    permuted_paths = np.array([os.path.basename(path) for path in permuted_paths])
-    indices = np.array_split(
-        permuted_paths, len(indices) // climate_data.loader.batch_size, axis=0
-    )
+    output_paths = [
+        f"{output_path_base}/batched/{s}/pr_mask/{res}/mask_{path}" for path in indices
+    ]
 
-    # Create parent dir if it doesn't exist for each variable
-    make_dirs(output_path, s, "pr_mask", res)
-    partial_paths = [f"{output_path}/{s}/{var.name}/{res}/" for _ in indices]
-
-    output_path = [f"{output_path}/batched/{s}/pr_mask/{res}/" for _ in indices]
-    inputs = zip(indices, partial_paths, output_path)
+    inputs = zip(input_paths, output_paths)
 
     with get_context("spawn").Pool(24) as pool:
         pool.starmap(parallel_loop, inputs)
