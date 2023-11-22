@@ -51,7 +51,7 @@ def loop_over_variables(climate_data, model, var, s, res):
     ).tolist()
 
     permuted_paths = np.array(
-        glob.glob(f"{climate_data.output_path}/{s}/{var.name}/{res}/*.pt")
+        sorted(glob.glob(f"{climate_data.output_path}/{s}/{var.name}/{res}/*.pt"))
     )[indices]
 
     permuted_paths = np.array([os.path.basename(path) for path in permuted_paths])
