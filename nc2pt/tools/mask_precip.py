@@ -19,15 +19,15 @@ from numpy.random import RandomState
 
 def parallel_loop(input_path, output_path):
     delta_precip = 0.0769779160618782 / 0.3726992905139923
-    x = torch.load(input_path) > delta_precip
+    x = torch.load(input_path) > -delta_precip
     x = 1 * x
     assert not torch.isnan(x).any(), f"NaNs found in {input_path}"
     torch.save(x, output_path)
 
 
 def make_dirs(output_path: str, s, var_name: str, res: str) -> None:
-    if not os.path.exists(f"{output_path}/batched/{s}/{var_name}/{res}"):
-        os.makedirs(f"{output_path}/batched/{s}/{var_name}/{res}")
+    if not os.path.exists(f"{output_path}/{s}/{var_name}/{res}"):
+        os.makedirs(f"{output_path}/{s}/{var_name}/{res}")
 
 
 def loop_over_variables(climate_data, model, var, s, res):
@@ -35,13 +35,13 @@ def loop_over_variables(climate_data, model, var, s, res):
     climate_data = instantiate(climate_data)
     output_path_base = climate_data.output_path
 
-    input_paths = sorted(glob.glob(f"{output_path_base}/batched/{s}/pr/{res}/*.pt"))
+    input_paths = sorted(glob.glob(f"{output_path_base}/{s}/pr/{res}/*.pt"))
     indices = [os.path.basename(path) for path in input_paths]
 
     make_dirs(output_path_base, s, "pr_mask", res)
 
     output_paths = [
-        f"{output_path_base}/batched/{s}/pr_mask/{res}/mask_{path}" for path in indices
+        f"{output_path_base}/{s}/pr_mask/{res}/mask_{path}" for path in indices
     ]
 
     inputs = zip(input_paths, output_paths)
