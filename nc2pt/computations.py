@@ -30,7 +30,7 @@ def user_defined_transform(ds: xr.Dataset, var: ClimateVariable) -> xr.Dataset:
 
     for transform in var.transform:
         try:
-            x = 1  # noqa: F841
+            x = 1.0  # noqa: F841
             eval(transform)  # x is implicitly a variable from the config
         except SyntaxError:
             raise SyntaxError(f"Invalid transform in config {transform}.")
@@ -40,6 +40,43 @@ def user_defined_transform(ds: xr.Dataset, var: ClimateVariable) -> xr.Dataset:
 
         logging.info(f"Applying transform {transform} to {var.name}...")
         ds[var.name] = xr.apply_ufunc(func, ds[var.name], dask="parallelized").compute()
+
+    return ds
+
+
+def compute_normalization(ds, varname, precomputed=None):
+    if precomputed is None:
+        logging.info("Computing min and max...")
+        logging.info("Calculation min...")
+        min = ds[varname].min().compute()
+        logging.info("Calculation max...")
+        max = ds[varname].max().compute()
+    else:
+        if (
+            "min" not in precomputed[varname].attrs
+            or "max" not in precomputed[varname].attrs
+        ):
+            raise KeyError(
+                f"Precomputed dataset does not contain min and max for variable {varname}."
+            )
+        min = precomputed[varname].attrs["min"]
+        max = precomputed[varname].attrs["max"]
+
+    logging.info(f"Min: {min}, Max: {max}")
+
+    if min == max:
+        raise ZeroDivisionError("Min and max are equal.")
+
+    if varname == "pr":
+        eps = 10**-3
+        ds[varname] = (np.log(ds[varname] + eps) - np.log(eps)) / (
+            np.log(max + eps) - np.log(eps)
+        )
+    else:
+        ds[varname] = (ds[varname] - min) / (max - min)
+
+    ds[varname].attrs["min"] = float(min)
+    ds[varname].attrs["max"] = float(max)
 
     return ds
 
@@ -101,7 +138,6 @@ def compute_standardization(
         mean = precomputed[varname].attrs["mean"]
         std = precomputed[varname].attrs["std"]
 
-    logging.info("Applying function...")
     ds[varname] = xr.apply_ufunc(
         standardize,
         ds[varname],
@@ -119,24 +155,38 @@ def compute_standardization(
 def split_and_standardize(ds, climdata, var) -> dict:
     # Train test split
     logging.info("Splitting dataset...")
+
+    ds = user_defined_transform(ds, var)
+
     train_test = train_test_split(
         ds, climdata.select.time.test_years, climdata.select.time.validation_years
     )
 
     # Standardize the dataset.
-    logging.info(f"Standardizing {var.name}...")
-    if var.apply_standardize is False:
-        logging.info("Skipping standardization...")
+    if var.apply_standardize:
+        logging.info(f"Standardizing {var.name}...")
+        train = compute_standardization(train_test["train"], var.name)
+        test = compute_standardization(
+            train_test["test"], var.name, train_test["train"]
+        )
+        validation = compute_standardization(
+            train_test["validation"], var.name, train_test["train"]
+        )
+
+    if var.apply_normalize:
+        logging.info(f"Normalizing {var.name}...")
+        train = compute_normalization(train_test["train"], var.name)
+        test = compute_normalization(train_test["test"], var.name, train_test["train"])
+        validation = compute_normalization(
+            train_test["validation"], var.name, train_test["train"]
+        )
+
+    if var.apply_normalize is False and var.apply_standardize is False:
+        logging.info("Skipping standardization and normalization...")
         return {
             "train": train_test["train"],
             "test": train_test["test"],
             "validation": train_test["validation"],
         }
-
-    train = compute_standardization(train_test["train"], var.name)
-    test = compute_standardization(train_test["test"], var.name, train_test["train"])
-    validation = compute_standardization(
-        train_test["validation"], var.name, train_test["train"]
-    )
 
     return {"train": train, "test": test, "validation": validation}

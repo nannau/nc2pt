@@ -106,6 +106,7 @@ def preprocess_variables(model: ClimateModel, climdata: ClimateData) -> None:
         end = timer()
         logging.info(f"🎉 Done processing {climate_variable.name} in {model.info}!")
         logging.info(f"⏳ Time elapsed ⏳: {timedelta(seconds=end-start)}")
+        del ds
 
 
 def preprocess(climdata: ClimateData) -> None:

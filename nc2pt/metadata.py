@@ -77,12 +77,15 @@ def rename_keys(
     ds_attr: str,
 ) -> xr.Dataset:
     """
-    Renames variables in a dataset based on alternative names provided for a ClimateVariable or ClimateDimension.
+    Renames variables in a dataset based on alternative names
+    provided for a ClimateVariable or ClimateDimension.
 
-    This function takes a dataset, a ClimateVariable or ClimateDimension object, and a dataset attribute name.
-    It checks if any of the alternative names for the ClimateVariable or ClimateDimension match keys in the
-    dataset attribute.
-    If there is exactly one match, it renames that key to the standard name in the ClimateVariable or ClimateDimension.
+    This function takes a dataset, a ClimateVariable or ClimateDimension object,
+    and a dataset attribute name.
+    It checks if any of the alternative names for the ClimateVariable or ClimateDimension
+    match keys in the dataset attribute.
+    If there is exactly one match, it renames that key to the standard name in the ClimateVariable
+    or ClimateDimension.
 
     Args:
     ds: xarray Dataset to rename

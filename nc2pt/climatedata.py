@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 import logging
-from typing import Optional, List
+from typing import Optional, List, Union
 
 
 @dataclass
@@ -8,7 +8,7 @@ class ClimateDimension:
     name: str
     alternative_names: List[str]
     hr_only: Optional[bool] = field(default=False)
-    chunksize: Optional[int] = None
+    chunksize: Union[int, str] = field(default="auto")
 
 
 @dataclass
@@ -20,6 +20,7 @@ class ClimateVariable:
     transform: Optional[str] = field(default=None)
     invariant: Optional[bool] = field(default=False)
     apply_standardize: Optional[bool] = field(default=True)
+    apply_normalize: Optional[bool] = field(default=False)
 
 
 # Write a dataclass that loads config data from hydra-core and
