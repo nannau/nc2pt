@@ -11,7 +11,7 @@
 ![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white)
 
 ## The Problem
-NetCDF4 files, commonly used for storing climate and earth systems data, are not optimized for use with most machine learning applications where small amounts of data are require quickly and frequently. 
+NetCDF4 files, commonly used for storing climate and earth systems data, are not optimized for use with most machine learning applications with heavy io requirements or datasets that are simply too large to hold in GPU/CPU memory. 
 
 ## How does nc2pt help?
 It performs a preprocessing flow on climate fields and converts them from NetCDF4 (`.nc`) to an intermediate file format Zarr (`.zarr`) which allows for the parallel loading and writing to individual PyTorch Lightning files (`.pt`) that can be loaded directly onto GPUs.
@@ -183,6 +183,13 @@ compute:
     time: auto
     rlat: auto
     rlon: auto
+
+# optional for tools scripts (single_files_to_batches)
+loader:
+  batch_size: 4
+  randomize: true
+  seed: 0
+
 ```
 
 ### 🚀 Running
@@ -192,10 +199,8 @@ compute:
 4. Run the `nc2pt/tools/zarr_to_torch.py` script which serializes each time step in the `.zarr` file to an individual PyTorch `.pt` file.
 5. Optional: run the `nc2pt/tools/single_files_to_batches.py` which combines individual files from the previous step into random batches. This setup allows for less io in your machine learning pipeline.
 
-
 ### Testing
 
 Testing is done with pytest. The easiest way to perform tests is to install pytest and use the command: `pytest --cov-report term-missing --cov=nc2pt .`
 
 It will generate a coverage report and automatically use files prepended with `test_*.py` in `nc2pt/tests`
----
