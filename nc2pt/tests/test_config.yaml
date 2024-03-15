@@ -25,7 +25,6 @@ climate_models:
         path: nc2pt/tests/test_data/hr/U10_hr_slice_for_testing.nc
         is_west_negative: true
         invariant: false
-        transform: []
 
       - _target_: nc2pt.climatedata.ClimateVariable
         name: "V10"
@@ -33,7 +32,6 @@ climate_models:
         path: nc2pt/tests/test_data/hr/V10_hr_slice_for_testing.nc
         is_west_negative: true
         invariant: false
-        transform: []
 
   - _target_: nc2pt.climatedata.ClimateModel
     info: "Low resolution ERA5, Western Canada"
