@@ -142,21 +142,27 @@ coords:
     chunksize: -1
 
 # subsample data temporally or spatially!
+
 select:
   # Time indexing for subsets
   time:
     # Crop to the dataset with the shortest run
     # this defines the full dataset from which to subset
     range:
-      start: "20001001T01:00:00"
+      start: "20001001T06:00:00"
       end: "20150928T12:00:00"
+      # start: "2021-11-01T00:00:00"
+      # end: "2021-12-31T22:00:00"
 
     # use this to select which years to reserve for testing
+    # and for validation
     # the remaining years in full will be used for training
     test_years: [2000, 2009, 2014]
+    validation_years: [2015]
+    # test_years: [None]
+    # validation_years: [None]
 
-  # IMPORTANT!
-  # sets the scale factor and index slices of the hr dimensions. you will usually have to determine this ahead of time and check that (first_index - last_index)/8 == your lr dataset
+  # sets the scale factor and index slices of the rotated coordinates
   spatial:
     scale_factor: 8
     x:
@@ -173,14 +179,10 @@ compute:
   # xarray netcdf engine
   engine: h5netcdf
   dask_dashboard_address: 8787
-
-# for tools scripts
-# you can randomize or also combine pytorch files into pytorch batches with tools/single_files_to_batches.py 
-loader:
-  batch_size: 2
-  randomize: true
-  seed: 0
-
+  chunks:
+    time: auto
+    rlat: auto
+    rlon: auto
 ```
 
 ### 🚀 Running
