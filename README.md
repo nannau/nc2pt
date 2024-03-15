@@ -30,7 +30,7 @@ It performs a preprocessing flow on climate fields and converts them from NetCDF
 ## What preprocessing steps does nc2pt do? 🤔
 
 High-level workflow
-![image](https://github.com/nannau/nc2pt/assets/10455520/a4713306-9c6a-4225-b0d5-ade46fda5cad)
+![image](https://private-user-images.githubusercontent.com/10455520/313314202-e13396ce-2224-4298-8fa2-472631efe4df.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTA1MzE2NjUsIm5iZiI6MTcxMDUzMTM2NSwicGF0aCI6Ii8xMDQ1NTUyMC8zMTMzMTQyMDItZTEzMzk2Y2UtMjIyNC00Mjk4LThmYTItNDcyNjMxZWZlNGRmLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDAzMTUlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwMzE1VDE5MzYwNVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWZmODQwZTI1NmE0ODY5NjgzMDMzNTVlYWViMjEzYzA3NmE3OWE0ZjM5YmQxYTE5ZjFhMzkwM2JlM2RmZjkzMzcmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.zGYUntGj7tLS32QPFudHTA5tgfNoyRu9l_38puxhwxM)
 
 1. configures metadata between the datasets as defined in the config
 2. slices data to a pre-determined range of dates
@@ -81,21 +81,15 @@ climate_models:
     name: hr
     info: "High Resolution USask WRF, Western Canada"
     climate_variables: # Provides a list of ClimateVariable dataclass objects to initialize
-      - _target_: nc2pt.climatedata.ClimateVariable
-        name: "pr"
-        alternative_names: ["PREC"] # any alternative names will be renamed to name 
-        path: /PREC/*.nc # wildcards are supported for xr.open_mfdataset
-        is_west_negative: true # if false, add 360 deg to longitude data
-        invariant: false # whether it is an invariant field or has time
-        transform: null # list of custom transforms here
-
-      - _target_: nc2pt.climatedata.ClimateVariable
-        name: "uas"
-        alternative_names: ["U10", "u10", "uas"]
-        path: /U10/*.nc
+        - _target_: nc2pt.climatedata.ClimateVariable
+        name: "tas"
+        alternative_names: ["T2", "surface temperature"]
+        path: /home/nannau/USask-WRF-WCA/fire_vars/T2/*.nc
         is_west_negative: true
+        apply_standardize: false
+        apply_normalize: true
         invariant: false
-        transform: null
+        transform: []
 
   - _target_: nc2pt.climatedata.ClimateModel
     info: "Low resolution ERA5, Western Canada"
@@ -108,31 +102,16 @@ climate_models:
       is_west_negative: true
 
     climate_variables:
-      - _target_: nc2pt.climatedata.ClimateVariable
-        name: "uas"
-        alternative_names: ["U10", "u10", "uas"]
-        path: /proc/uas_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
+        - _target_: nc2pt.climatedata.ClimateVariable
+        name: "tas"
+        alternative_names: ["T2", "surface temperature"]
+        path: /home/nannau/ERA5_NCAR-RDA_North_America/proc/tas_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
         is_west_negative: false
+        apply_standardize: false
+        apply_normalize: true
         invariant: false
-        transform: null
-
-      - _target_: nc2pt.climatedata.ClimateVariable
-        name: "pr"
-        alternative_names: ["PREC"]
-        path: /proc/pr_1hr_ERA5_fc_RDA-025_1979010106-2019010106_time_sliced_cropped_merged_forecast_time.nc
-        is_west_negative: false
-        invariant: false
-        transform: # custom transformations! handy for unit conversions, etc.
-          - "x * 3600"
-          - "np.log10(x + 1)"
-
-      - _target_: nc2pt.climatedata.ClimateVariable
-        name: "Q2"
-        alternative_names: ["hurs", "huss", "Q2", "q2"]
-        path: /proc/huss_1hr_ERA5_an_RDA-025_1979010100-2018123123_time_sliced_cropped.nc
-        is_west_negative: false
-        invariant: false
-        transform: null
+        transform:
+          - "x - 273.15"
 
 
 dims: # Defines the dimensions you might find in your lr or hr dataset and lists them to be initialized as ClimateDimension objects. Typically this would match what is in your hr dataset. Intended to allow for renaming of dimensions and allows for the control of chunking
@@ -202,7 +181,6 @@ loader:
   randomize: true
   seed: 0
 
-
 ```
 
 ### 🚀 Running
@@ -213,5 +191,9 @@ loader:
 5. Optional: run the `nc2pt/tools/single_files_to_batches.py` which combines individual files from the previous step into random batches. This setup allows for less io in your machine learning pipeline.
 
 
+### Testing
 
+Testing is done with pytest. The easiest way to perform tests is to install pytest and use the command: `pytest --cov-report term-missing --cov=nc2pt .`
+
+It will generate a coverage report and automatically use files prepended with `test_*.py` in `nc2pt/tests`
 ---
