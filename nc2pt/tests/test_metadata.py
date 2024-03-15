@@ -146,35 +146,35 @@ test_cases = [
         "id": "happy_path_west_postitive",
         "ds": xr.Dataset(
             data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])},
-            coords={"lat": [0, 1], "lon": [0, 1]}
+            coords={"lat": [0, 1], "lon": [0, 1]},
         ),
         "is_west_negative": False,
         "expected": xr.Dataset(
             data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])},
-            coords={"lat": [0, 1], "lon": [0, 1]}
+            coords={"lat": [0, 1], "lon": [0, 1]},
         ),
     },
     {
         "id": "happy_path_west_negative",
         "ds": xr.Dataset(
             data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])},
-            coords={"lat": [0, 1], "lon": [-180, 0]}
+            coords={"lat": [0, 1], "lon": [-180, 0]},
         ),
         "is_west_negative": True,
         "expected": xr.Dataset(
             data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])},
-            coords={"lat": [0, 1], "lon": [180, 360]}
+            coords={"lat": [0, 1], "lon": [180, 360]},
         ),
     },
     {
         "id": "error_case_min_max_lontitude_out_of_bounds",
         "ds": xr.Dataset(
             data_vars={"temperature": (("lat", "lon"), [[1, 2], [3, 4]])},
-            coords={"lat": [0, 1], "lon": [0, 181]}
+            coords={"lat": [0, 1], "lon": [0, 181]},
         ),
         "is_west_negative": True,
         "expected": ValueError,
-    }
+    },
 ]
 
 

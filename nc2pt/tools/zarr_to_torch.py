@@ -12,8 +12,6 @@ import hydra
 
 from parallelbar import progress_starmap
 
-from nc2pt.climatedata import ClimateModel, ClimateVariable
-
 
 def parallel_loop(i: int, path: str, arr: xr.DataArray):
     # i, path, arr = tup
@@ -64,6 +62,21 @@ def loop_over_sets(climate_data, model, s):
 
     logging.info(f"Loading {s} {model.name} dataset...")
     for var in model.climate_variables:
+        logging.info(f"Processing {var.name} variable...")
+        if s == "train":
+            # load train file and write the attributes to a yaml file
+            train_file = f"{climate_data.output_path}/{var.name}_{s}_{model.name}.zarr"
+            train_ds = xr.open_zarr(train_file)
+            train_attrs = train_ds[var.name].attrs
+            # now write the attributes to a yaml file
+            train_attrs_file = (
+                f"{climate_data.output_path}/{s}/{var.name}_{s}_{model.name}_attrs.yaml"
+            )
+            with open(train_attrs_file, "w") as file:
+                file.write("attributes:\n")
+                for key, value in train_attrs.items():
+                    file.write(f"  {key}: {value}\n")
+
         loop_over_variables(climate_data, model, var, s)
 
 

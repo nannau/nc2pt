@@ -42,26 +42,18 @@ missing_hr_keys = hr_data.copy()
 missing_hr_keys = missing_hr_keys.drop_vars("U10")
 
 
-@pytest.mark.parametrize(
-    "ds, expected",
-    [
-        (lr_data, xr.Dataset),
-        (hr_data, xr.Dataset)
-    ]
-)
+@pytest.mark.parametrize("ds, expected", [(lr_data, xr.Dataset), (hr_data, xr.Dataset)])
 def test_type(ds, expected):
     assert isinstance(ds, expected)
 
 
-@pytest.mark.parametrize(
-    "ds", [lr_data, hr_data]
-)
+@pytest.mark.parametrize("ds", [lr_data, hr_data])
 @pytest.mark.parametrize(
     "start, end, total_hours",
     [
         ("20001001T01:00:00", "20150929T23:00:00", 131_447),
-        ("20001001T01:00:00", "20001001T01:00:00", 1)
-    ]
+        ("20001001T01:00:00", "20001001T01:00:00", 1),
+    ],
 )
 def test_slice_time(ds, start, end, total_hours):
     ds = slice_time(ds=ds, start=start, end=end)
@@ -72,7 +64,7 @@ def test_slice_time(ds, start, end, total_hours):
     "ds, grid",
     [
         (lr_data, hr_data),
-    ]
+    ],
 )
 def test_regrid_align(ds, grid):
     ds = regrid_align(ds=ds, grid=grid)
@@ -80,14 +72,12 @@ def test_regrid_align(ds, grid):
     assert ds.rlon.size == grid.rlon.size, "rlon size mismatch"
 
 
-@pytest.mark.parametrize(
-    "ds", [lr_data, hr_data]
-)
+@pytest.mark.parametrize("ds", [lr_data, hr_data])
 @pytest.mark.parametrize(
     "years, expected_size",
     [
         ([2000, 2001, 2002], 19_727),
-    ]
+    ],
 )
 def test_train_test_split(ds, years, expected_size):
     ds = slice_time(ds, start="20001001T01:00:00", end="20150929T23:00:00")
@@ -96,16 +86,14 @@ def test_train_test_split(ds, years, expected_size):
     assert test.time.size == expected_size, "test size mismatch"
 
 
-@pytest.mark.parametrize(
-    "ds", [lr_data, hr_data]
-)
+@pytest.mark.parametrize("ds", [lr_data, hr_data])
 @pytest.mark.parametrize(
     "config, key_attr, expected",
     [
         (cfg.vars, "data_vars", ["U10", "V10"]),
         (cfg.coords, "coords", ["lat", "lon"]),
         (cfg.dims, "dims", ["time"]),
-    ]
+    ],
 )
 def test_good_homogenize_names(ds, config, key_attr, expected):
     ds = homogenize_names(ds=ds, keymaps=config, key_attr=key_attr)
@@ -113,10 +101,7 @@ def test_good_homogenize_names(ds, config, key_attr, expected):
         assert key in getattr(ds, key_attr), f"{key} not in dataset"
 
 
-bad_vars_multiple_alt = {"U10": {
-    "alternative_names": ["u10", "uas"]
-    }
-}
+bad_vars_multiple_alt = {"U10": {"alternative_names": ["u10", "uas"]}}
 
 
 @pytest.mark.parametrize(
@@ -126,7 +111,7 @@ bad_vars_multiple_alt = {"U10": {
         (missing_hr_keys, cfg.vars, "data_vars", MissingKeys),
         (multiple_lr_keys, cfg.vars, "data_vars", MultipleKeys),
         (multiple_hr_keys, cfg.vars, "data_vars", MultipleKeys),
-    ]
+    ],
 )
 def test_homogonize_missing_or_multiple_names(ds, config, key_attr, expected):
     # Note that tas is included as an LR variable only in the config.
@@ -135,9 +120,7 @@ def test_homogonize_missing_or_multiple_names(ds, config, key_attr, expected):
         ds = homogenize_names(ds=ds, keymaps=config, key_attr=key_attr)
 
 
-@pytest.mark.parametrize(
-    "ds", [hr_data]
-)
+@pytest.mark.parametrize("ds", [hr_data])
 def test_match_longitudes(ds):
     hr = homogenize_names(ds=ds, keymaps=cfg.coords, key_attr="coords")
     hr = match_longitudes(hr) if cfg.hr.is_west_negative else hr

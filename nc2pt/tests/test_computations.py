@@ -4,6 +4,7 @@ from nc2pt.computations import (
     user_defined_transform,
     standardize,
     compute_standardization,
+    compute_normalization,
     split_and_standardize,
 )
 
@@ -151,12 +152,17 @@ def test_standardize(case):
 
 
 # Define a helper function to create a dataset for testing
-def create_dataset(varname, data, mean=None, std=None):
+def create_dataset(varname, data, mean=None, std=None, min=None, max=None):
     ds = xr.Dataset({varname: (["x"], data)})
     if mean is not None:
         ds[varname].attrs["mean"] = mean
     if std is not None:
         ds[varname].attrs["std"] = std
+    if min is not None:
+        ds[varname].attrs["min"] = min
+    if max is not None:
+        ds[varname].attrs["max"] = max
+
     return ds
 
 
@@ -244,6 +250,92 @@ def test_compute_standardization(test_id, ds, varname, precomputed, expected, ra
             compute_standardization(ds, varname, precomputed)
 
 
+# Define test parameters
+min_max = namedtuple("min_max", ["min", "max"])
+params = [
+    # Happy path tests
+    (
+        "happy_path_1",
+        create_dataset("var1", np.arange(10)),
+        "var1",
+        None,
+        min_max(min=np.arange(10).min(), max=np.arange(10).max()),
+        None,
+    ),
+    (
+        "happy_path_2",
+        create_dataset("var2", get_array(100)),
+        "var2",
+        None,
+        min_max(min=get_array(100).min(), max=get_array(100).max()),
+        None,
+    ),
+    (
+        "happy_path_3",
+        create_dataset("var2", np.arange(10), min=0.0, max=1.0),
+        "var2",
+        create_dataset("var2", np.arange(10), min=0.0, max=1.0),
+        min_max(min=0.0, max=1.0),
+        None,
+    ),
+    (
+        "happy_path_4",
+        create_dataset("pr", np.arange(10), min=0.0, max=1.0),
+        "pr",
+        create_dataset("pr", np.arange(10), min=0.0, max=1.0),
+        min_max(min=0.0, max=1.0),
+        None,
+    ),
+    # Edge case tests
+    (
+        "edge_case_1",
+        create_dataset("var1", np.ones(10)),
+        "var1",
+        None,
+        min_max(min=1.0, max=1.0),
+        pytest.raises(ZeroDivisionError),
+    ),
+    # Error case tests
+    (
+        "error_case_1",
+        create_dataset("var1", np.arange(10), min=0.0, max=0.0),
+        "var1",
+        create_dataset("var1", np.arange(10), min=0.0, max=0.0),
+        min_max(min=0.0, max=0.0),
+        pytest.raises(ZeroDivisionError),
+    ),
+    (
+        "error_case_2",
+        create_dataset("var1", np.arange(10)),
+        "var1",
+        create_dataset("var1", np.arange(10), min=5.0),
+        min_max(min=5.0, max=np.arange(10).max()),
+        pytest.raises(KeyError),
+    ),
+    (
+        "error_case_1",
+        create_dataset("var1", np.arange(10), min=0.0, max=0.0),
+        "var2",
+        create_dataset("var1", np.arange(10), min=0.0, max=0.0),
+        min_max(min=1.0, max=0.0),
+        pytest.raises(KeyError),
+    ),
+]
+
+
+@pytest.mark.parametrize("test_id,ds,varname,precomputed,expected,raises", params)
+def test_compute_normalization(test_id, ds, varname, precomputed, expected, raises):
+    # Act
+    if raises is None:
+        result = compute_normalization(ds, varname, precomputed)
+        # Arrange
+        assert np.isclose(result[varname].attrs["min"], expected.min)
+        assert np.isclose(result[varname].attrs["max"], expected.max)
+    else:
+        with raises:
+            compute_normalization(ds, varname, precomputed)
+
+
 test_split_and_standardize_cases = [
     # Happy path
     {
@@ -251,14 +343,42 @@ test_split_and_standardize_cases = [
         "climatedata": OmegaConf.create(
             {"select": {"time": {"test_years": [2000], "validation_years": [2001]}}}
         ),
-        "var": OmegaConf.create({"name": "var", "apply_standardize": True}),
+        "var": OmegaConf.create(
+            {
+                "name": "var",
+                "apply_standardize": True,
+                "transform": [],
+                "apply_normalize": False,
+            }
+        ),
     },
     {
         "id": "happy_path_normal_years",
         "climatedata": OmegaConf.create(
             {"select": {"time": {"test_years": [2000], "validation_years": [2001]}}}
         ),
-        "var": OmegaConf.create({"name": "var", "apply_standardize": False}),
+        "var": OmegaConf.create(
+            {
+                "name": "var",
+                "apply_standardize": False,
+                "transform": [],
+                "apply_normalize": False,
+            }
+        ),
+    },
+    {
+        "id": "happy_path_normal_years",
+        "climatedata": OmegaConf.create(
+            {"select": {"time": {"test_years": [2000], "validation_years": [2001]}}}
+        ),
+        "var": OmegaConf.create(
+            {
+                "name": "var",
+                "apply_standardize": False,
+                "transform": [],
+                "apply_normalize": True,
+            }
+        ),
     },
 ]
 
