@@ -76,15 +76,6 @@ def preprocess_variables(model: ClimateModel, climdata: ClimateData) -> None:
 
         # This implies that it is a different grid or a lr dataset.
         ds = alignment_procedures[model.name](ds)
-        logging.info(
-            f"✨ Applying user defined transform {climate_variable.transform}..."
-        )
-        ds = (
-            user_defined_transform(ds, climate_variable)
-            if climate_variable.transform is not None
-            else ds
-        )
-
         if climate_variable.invariant is False:
             train_test_validation_ds = split_and_standardize(
                 ds, climdata, climate_variable
