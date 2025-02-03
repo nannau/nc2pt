@@ -19,7 +19,7 @@ It performs a preprocessing flow on climate fields and converts them from NetCDF
 ## What intended use cases of nc2pt?
 * standardizing and making metadata uniform between datasets
 
-* aligns different grids perfectly by re-projecting them onto one another -- nc2pt projects the low-resolution (lr) regular grids onto the high-resolution curvilinear grids (hr). nc2pt assumes the curvilinear dimensions are like `rlat` or `rlon`. It was originally designed to support super-resolution problems.
+* aligns different grids perfectly by re-projecting them onto one another -- nc2pt projects the low-resolution (lr) regular grids onto high-resolution curvilinear grids (hr). This step can be configured to suit specific datasets.
 
 * selects individual years as test years or training years
 
