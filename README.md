@@ -25,7 +25,7 @@ It performs a preprocessing flow on climate fields and converts them from NetCDF
 
 * organizes code into input (lr) or output (hr) fields
 
-* meant for use with large datasets ont he order of hundreds of GB
+* Designed for O(terabyte) datasets
 
 ## What preprocessing steps does nc2pt do? 🤔
 
